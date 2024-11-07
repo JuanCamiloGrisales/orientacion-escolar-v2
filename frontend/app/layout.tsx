@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
-import { RegistrosProvider } from '@/lib/RegistrosContext';
+import { EstudiantesProvider } from '@/lib/StudentsContext';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,12 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <RegistrosProvider>
+        <EstudiantesProvider>
           <div className="flex h-screen bg-gray-100">
             <Sidebar />
             {children}
           </div>
-        </RegistrosProvider>
+        </EstudiantesProvider>
       </body>
     </html>
   );

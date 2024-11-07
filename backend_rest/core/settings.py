@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-aqq55bazcqm@x(mz_jtd2&0#y3f$nz^em+1_@74$i1zpy%rnzg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -41,11 +41,13 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     "registro_de_atencion",
+    "editar_formulario",
 ]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
     "corsheaders",
+    "django_extensions",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS

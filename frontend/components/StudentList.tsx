@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { Download, Edit3, Filter, MoreVertical, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
     Table,
     TableBody,
@@ -10,17 +14,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useRegistros, Registro } from '@/lib/RegistrosContext';
+import { useEstudiantes } from '@/lib/StudentsContext';
+import { Download, Edit3, Filter, MoreVertical, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
 
 const statusColors: { [key: string]: string } = {
-    'Discharged': 'bg-green-500',
-    'Ext. hospitalization': 'bg-red-500',
+    'En proceso': 'bg-emerald-500',
+    'Cerrado': 'bg-red-500',
     'Unavailable': 'bg-gray-500',
     'Surgical intervention': 'bg-blue-500',
     'In surgery': 'bg-yellow-500',
@@ -34,7 +34,7 @@ interface StudentListProps {
 
 
 const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) => {
-    const { registros, loading, error } = useRegistros();
+    const { estudiantes, loading, error } = useEstudiantes();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
@@ -46,18 +46,8 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
         return <div>Error: {error}</div>;
     }
 
-    const uniqueStudents = registros.reduce((acc: Registro[], current) => {
-        const existingStudent = acc.find(student => student.nombreEstudiante === current.nombreEstudiante);
-        if (!existingStudent || current.consecutivo > existingStudent.consecutivo) {
-            if (existingStudent) {
-                acc.splice(acc.indexOf(existingStudent), 1);
-            }
-            acc.push(current);
-        }
-        return acc;
-    }, []);
 
-    const filteredStudents = uniqueStudents.filter((student) => {
+    const filteredStudents = estudiantes.filter((student) => {
         const searchMatch = student.nombreEstudiante.toLowerCase().includes(searchTerm.toLowerCase());
         const tabMatch = selectedTab === 'General' || student.lineaDeAtencion === selectedTab;  // Filter by tab
         return searchMatch && tabMatch;
@@ -102,7 +92,7 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Nombre</TableHead>
-                        <TableHead>Fecha</TableHead>
+                        <TableHead>Próxima Atención</TableHead>
                         <TableHead>Grado</TableHead>
                         <TableHead>Motivos de atención</TableHead>
                         <TableHead>Tipo de Atención</TableHead>
@@ -122,7 +112,18 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
                                     {student.nombreEstudiante}
                                 </div>
                             </TableCell>
-                            <TableCell>{student.fecha ? new Date(student.fecha).toLocaleDateString() : ''}</TableCell>
+                            <TableCell>
+                                {student.fechaProximoSeguimiento ? 
+                                    new Date(student.fechaProximoSeguimiento).toLocaleDateString('es-ES', {
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: 'numeric',
+                                        hour12: true
+                                    }).replace(',', '') 
+                                    : ''
+                                }
+                            </TableCell>
                             <TableCell>{student.gradoEscolaridad}</TableCell>
                             <TableCell>{student.posiblesMotivosDeAtencion}</TableCell>
                             <TableCell>{student.tipoDeAtencion}</TableCell>
