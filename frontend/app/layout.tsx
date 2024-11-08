@@ -1,8 +1,8 @@
+import Sidebar from "@/components/Sidebar";
+import { EstudiantesProvider } from '@/lib/StudentsContext';
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
-import { EstudiantesProvider } from '@/lib/StudentsContext';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

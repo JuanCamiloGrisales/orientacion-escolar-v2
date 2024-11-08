@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/table";
 import { useEstudiantes } from '@/lib/StudentsContext';
 import { Download, Edit3, Filter, MoreVertical, Trash2 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import FilterModal, { Filters } from './FilterModal';
 
 const statusColors: { [key: string]: string } = {
     'En proceso': 'bg-emerald-500',
@@ -27,16 +28,36 @@ const statusColors: { [key: string]: string } = {
     'Expected hospital stay': 'bg-purple-500',
 }
 
+const DEFAULT_FILTERS: Filters = {
+    gradoEscolaridad: [],
+    fechaProximoSeguimiento: { from: null, to: null },
+};
+
 interface StudentListProps {
     searchTerm: string;
     selectedTab: string;
 }
 
-
 const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) => {
     const { estudiantes, loading, error } = useEstudiantes();
     const [currentPage, setCurrentPage] = useState(1);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [appliedFilters, setAppliedFilters] = useState<Filters>(DEFAULT_FILTERS);
+    const [activeFiltersCount, setActiveFiltersCount] = useState(0);
     const itemsPerPage = 5;
+
+    // Añadir efecto para contar filtros activos
+    useEffect(() => {
+        let count = 0;
+        if (appliedFilters.gradoEscolaridad.length > 0) count++;
+        if (appliedFilters.fechaProximoSeguimiento.from || appliedFilters.fechaProximoSeguimiento.to) count++;
+        setActiveFiltersCount(count);
+    }, [appliedFilters]);
+
+    const handleApplyFilters = (filters: Filters) => {
+        setAppliedFilters(filters);
+        setCurrentPage(1);
+    };
 
     if (loading) {
         return <div>Cargando estudiantes...</div>;
@@ -50,7 +71,16 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
     const filteredStudents = estudiantes.filter((student) => {
         const searchMatch = student.nombreEstudiante.toLowerCase().includes(searchTerm.toLowerCase());
         const tabMatch = selectedTab === 'General' || student.lineaDeAtencion === selectedTab;  // Filter by tab
-        return searchMatch && tabMatch;
+
+        const gradoMatch = appliedFilters.gradoEscolaridad.length === 0 || appliedFilters.gradoEscolaridad.includes(student.gradoEscolaridad);
+
+        let fechaMatch = true;
+        if (appliedFilters.fechaProximoSeguimiento.from && appliedFilters.fechaProximoSeguimiento.to) {
+            const fecha = new Date(student.fechaProximoSeguimiento);
+            fechaMatch = fecha >= appliedFilters.fechaProximoSeguimiento.from && fecha <= appliedFilters.fechaProximoSeguimiento.to;
+        }
+
+        return searchMatch && tabMatch && gradoMatch && fechaMatch;
     });
 
 
@@ -75,14 +105,27 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
     };
 
     return (
-        <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Lista de Alumnos</h2>
-                <div className="flex space-x-2">
-                    <Button variant="outline">
-                        <Filter className="mr-2 h-4 w-4" /> Filtrar
+        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                    Lista de Alumnos
+                </h2>
+                <div className="flex space-x-3">
+                    <Button
+                        variant="outline"
+                        onClick={() => setIsFilterOpen(true)}
+                        className="relative border-2 border-indigo-100 hover:border-indigo-200 transition-all duration-200"
+                    >
+                        <Filter className="mr-2 h-4 w-4 text-indigo-500" />
+                        Filtrar
+                        {activeFiltersCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-gradient-to-r from-indigo-500 to-purple-500 
+                             text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                {activeFiltersCount}
+                            </span>
+                        )}
                     </Button>
-                    <Button>
+                    <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600">
                         <Download className="mr-2 h-4 w-4" /> Descargar Reporte
                     </Button>
                 </div>
@@ -113,14 +156,14 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
                                 </div>
                             </TableCell>
                             <TableCell>
-                                {student.fechaProximoSeguimiento ? 
+                                {student.fechaProximoSeguimiento ?
                                     new Date(student.fechaProximoSeguimiento).toLocaleDateString('es-ES', {
                                         month: 'long',
                                         day: 'numeric',
                                         hour: 'numeric',
                                         minute: 'numeric',
                                         hour12: true
-                                    }).replace(',', '') 
+                                    }).replace(',', '')
                                     : ''
                                 }
                             </TableCell>
@@ -159,7 +202,15 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
                 </TableBody>
             </Table>
 
+            <FilterModal
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                onApply={handleApplyFilters}
+                initialFilters={appliedFilters}
+            />
+
             <div className="flex items-center justify-between mt-4">
+
                 <div className="flex space-x-2">
                     <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={currentPage === 1}>Anterior</Button>
                     {[...Array(totalPages)].map((_, index) => (

@@ -9,7 +9,7 @@ const UpcomingEvents: React.FC = () => {
     const { estudiantes } = useEstudiantes();
 
     const upcomingEvents = estudiantes
-        .filter(estudiante => estudiante.fechaProximoSeguimiento)
+        .filter(estudiante => estudiante.fechaProximoSeguimiento && new Date(estudiante.fechaProximoSeguimiento) > new Date())
         .sort((a, b) => new Date(a.fechaProximoSeguimiento!).getTime() - new Date(b.fechaProximoSeguimiento!).getTime())
         .slice(0, 5);
 
@@ -23,37 +23,46 @@ const UpcomingEvents: React.FC = () => {
 
     return (
         <>
-            <div className="mb-16"></div>
-            <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <h2 className="text-xl font-semibold mb-4">Próximas Atenciones</h2>
-                <ul className="space-y-4">
-                    {upcomingEvents.map(event => (
-                        <li
-                            key={event.id}
-                            className="flex items-center space-x-4 p-3 rounded-md hover:bg-gray-50 transition-colors"
-                        >
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src="/placeholder.svg?height=48&width=48" />
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                    {event.nombreEstudiante.split(' ').map((n: string) => n[0]).join('')}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-grow">
-                                <p className="font-medium text-gray-900">{event.nombreEstudiante}</p>
-                                <div className="flex items-center mt-1 text-sm text-gray-500">
-                                    <CalendarIcon className="w-4 h-4 mr-1" />
-                                    <span className="capitalize">
-                                        {formatDate(new Date(event.fechaProximoSeguimiento!))}
-                                    </span>
-                                    <ClockIcon className="w-4 h-4 ml-3 mr-1" />
-                                    <span>
-                                        {format(new Date(event.fechaProximoSeguimiento!), 'HH:mm')}
-                                    </span>
+            <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
+                <h2 className="text-xl font-semibold mb-6 bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                    Próximas Atenciones
+                </h2>
+                {upcomingEvents.length > 0 ? (
+                    <ul className="space-y-4">
+                        {upcomingEvents.map(event => (
+                            <li
+                                key={event.id}
+                                className="flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 
+                                         transition-all duration-200 border border-transparent hover:border-indigo-50"
+                            >
+                                <Avatar className="h-12 w-12 ring-2 ring-indigo-100">
+                                    <AvatarImage src="/placeholder.svg?height=48&width=48" />
+                                    <AvatarFallback className="bg-primary/10 text-primary">
+                                        {event.nombreEstudiante.split(' ').map((n: string) => n[0]).join('')}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-grow">
+                                    <p className="font-medium text-gray-900">{event.nombreEstudiante}</p>
+                                    <div className="flex items-center mt-1 text-sm text-gray-500">
+                                        <CalendarIcon className="w-4 h-4 mr-1" />
+                                        <span className="capitalize">
+                                            {formatDate(new Date(event.fechaProximoSeguimiento!))}
+                                        </span>
+                                        <ClockIcon className="w-4 h-4 ml-3 mr-1" />
+                                        <span>
+                                            {format(new Date(event.fechaProximoSeguimiento!), 'HH:mm')}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="text-center py-8 text-gray-500">
+                        <p className="text-lg">No hay próximas atenciones programadas.</p>
+                        <p className="mt-2 text-indigo-400">Programa nuevas atenciones para verlas aquí.</p>
+                    </div>
+                )}
             </div>
         </>
     );

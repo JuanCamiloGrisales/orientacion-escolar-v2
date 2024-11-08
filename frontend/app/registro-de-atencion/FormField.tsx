@@ -77,18 +77,18 @@ const FormField: React.FC<FormFieldProps> = ({
         case "date":
             return (
                 <div className="space-y-2">
-                    <Label>{formattedLabel}</Label>
+                    <Label className="text-gray-700 font-medium">{formattedLabel}</Label>
                     <div className="flex space-x-2">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                        "flex-1 justify-start text-left font-normal",
+                                        "flex-1 justify-start text-left font-normal border-2 border-indigo-100 hover:border-indigo-200",
                                         !value && "text-muted-foreground"
                                     )}
                                 >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    <CalendarIcon className="mr-2 h-4 w-4 text-indigo-400" />
                                     {value ? format(new Date(value), "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                                 </Button>
                             </PopoverTrigger>
@@ -112,7 +112,7 @@ const FormField: React.FC<FormFieldProps> = ({
                         </Popover>
                         <Input
                             type="time"
-                            className="w-[150px]"
+                            className="w-[150px] border-2 border-indigo-100 focus:border-indigo-300 rounded-lg"
                             value={value ? format(new Date(value), "HH:mm") : ""}
                             onChange={(e) => {
                                 const [hours, minutes] = e.target.value.split(':').map(Number);
@@ -129,30 +129,35 @@ const FormField: React.FC<FormFieldProps> = ({
         case "richtext":
             return (
                 <div className="space-y-2">
-                    <Label htmlFor={id}>{formattedLabel}</Label>
-                    <CKEditor
-                        editor={ClassicEditor}
-                        data={editorValue}
-                        config={{
-                            toolbar: [
-                                'heading',
-                                '|',
-                                'bold',
-                                'italic',
-                                'link',
-                                'bulletedList',
-                                'numberedList',
-                                'blockQuote',
-                                'undo',
-                                'redo'
-                            ]
-                        }}
-                        onChange={(event, editor) => {
-                            const data = editor.getData();
-                            setEditorValue(data);
-                            onChange(section, field, data);
-                        }}
-                    />
+                    <Label className="text-gray-700 font-medium">{formattedLabel}</Label>
+                    <div className="rounded-xl border-2 border-indigo-100 focus-within:border-indigo-300 transition-all">
+                        <CKEditor
+                            editor={ClassicEditor}
+                            data={editorValue}
+                            config={{
+                                toolbar: {
+                                    items: [
+                                        'heading',
+                                        '|',
+                                        'bold',
+                                        'italic',
+                                        'link',
+                                        'bulletedList',
+                                        'numberedList',
+                                        '|',
+                                        'undo',
+                                        'redo'
+                                    ],
+                                    shouldNotGroupWhenFull: true
+                                }
+                            }}
+                            onChange={(event, editor) => {
+                                const data = editor.getData();
+                                setEditorValue(data);
+                                onChange(section, field, data);
+                            }}
+                        />
+                    </div>
                 </div>
             );
 
@@ -187,39 +192,44 @@ const FormField: React.FC<FormFieldProps> = ({
 
         default:
             return (
-                <div className="relative space-y-2">
-                    <Label htmlFor={id}>{formattedLabel}</Label>
-                    <Input
-                        id={id}
-                        type={type}
-                        value={value || ''}
-                        onChange={handleInputChange}
-                        onFocus={() => options.length > 0 && setShowOptions(true)}
-                        onBlur={() => setTimeout(() => setShowOptions(false))}
-                        onKeyDown={handleKeyDown}
-                        autoComplete="off"
-                        {...props}
-                    />
-                    {options.length > 0 && showOptions && (
-                        <div className="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto rounded-md shadow-lg">
-                            {filteredOptions.length > 0 ? (
-                                filteredOptions.map((option, index) => (
-                                    <div
-                                        key={index}
-                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                        onMouseDown={(e) => {
-                                            e.preventDefault();
-                                            handleOptionClick(option);
-                                        }}
-                                    >
-                                        {option}
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="px-4 py-2 text-gray-500">No hay opciones</div>
-                            )}
-                        </div>
-                    )}
+                <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">{formattedLabel}</Label>
+                    <div className="relative">
+                        <Input
+                            id={id}
+                            type={type}
+                            value={value || ''}
+                            onChange={handleInputChange}
+                            className="border-2 border-indigo-100 focus:border-indigo-300 rounded-lg
+                                     transition-all duration-200 shadow-sm"
+                            onFocus={() => options.length > 0 && setShowOptions(true)}
+                            onBlur={() => setTimeout(() => setShowOptions(false))}
+                            onKeyDown={handleKeyDown}
+                            autoComplete="off"
+                            {...props}
+                        />
+                        {options.length > 0 && showOptions && (
+                            <div className="absolute z-10 w-full mt-1 bg-white rounded-xl border-2 border-indigo-100 
+                                          shadow-lg overflow-hidden">
+                                {filteredOptions.length > 0 ? (
+                                    filteredOptions.map((option, index) => (
+                                        <div
+                                            key={index}
+                                            className="px-4 py-2 hover:bg-indigo-50 cursor-pointer transition-colors"
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                handleOptionClick(option);
+                                            }}
+                                        >
+                                            {option}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="px-4 py-2 text-gray-500">No hay opciones</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
     }

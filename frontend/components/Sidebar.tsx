@@ -1,20 +1,12 @@
 "use client";
-import React, { useState } from 'react';
-import Link from 'next/link';
 import {
-  Home,
-  Users,
-  User,
-  BookOpen,
   BarChart,
   FileText,
-  Settings,
-  HelpCircle,
-  LogOut,
-  GraduationCap, // Añadido para Profesores
-  Layers // Añadido para Departamentos
+  Home,
+  Settings
 } from 'lucide-react';
-
+import Link from 'next/link';
+import React, { useState } from 'react';
 
 const Sidebar: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string>('Inicio');
@@ -22,19 +14,11 @@ const Sidebar: React.FC = () => {
   const menuItems = [
     { label: 'Inicio', icon: Home, href: '/' },
     { label: 'Registro de Atención', icon: FileText, href: '/registro-de-atencion' },
-    { label: 'Profesores', icon: GraduationCap, href: '/profesores' },
-    { label: 'Departamentos', icon: Layers, href: '/departamentos' },
-    { label: 'Empleados', icon: Users, href: '/empleados' },
-    { label: 'Biblioteca', icon: BookOpen, href: '/biblioteca' },
     { label: 'Analíticas', icon: BarChart, href: '/analiticas' },
-    { label: 'Facturas', icon: FileText, href: '/facturas' },
-    { label: 'Informes', icon: FileText, href: '/informes' },
   ];
 
   const otherMenuItems = [
-    { label: 'Settings', icon: Settings, href: '/settings' },
-    { label: 'Help & Support', icon: HelpCircle, href: '/help-and-support' },
-    { label: 'Logout', icon: LogOut, href: '/logout' },
+    { label: 'Configuración', icon: Settings, href: '/settings' },
   ];
 
   const handleItemClick = (item: string) => {
@@ -42,35 +26,52 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-72 bg-white p-6 shadow-md h-full">
-      <div className="flex items-center mb-8">
-        <div className="w-8 h-8 bg-indigo-600 rounded-lg mr-2"></div>
-        <div>
-          <h2 className="font-bold text-lg">Amparo Garcés</h2>
-          <p className="text-xs text-gray-500">Orientación Escolar</p>
+    <aside className="w-72 min-w-[18rem] max-w-[18rem] bg-white p-6 shadow-lg h-full flex flex-col">
+      <div className="mb-8">
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl font-bold">AG</span>
+            </div>
+            <div className="text-white">
+              <h2 className="font-bold text-lg leading-tight">Amparo Garcés</h2>
+              <p className="text-xs text-white/80">Orientación Escolar</p>
+            </div>
+          </div>
         </div>
       </div>
-      <nav>
+
+      <nav className="flex-1">
         {menuItems.map((item) => (
           <Link key={item.label} href={item.href}>
             <div
               onClick={() => handleItemClick(item.label)}
-              className={`flex items-center py-2 px-4 rounded-lg mb-1 ${activeItem === item.label ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center py-3 px-4 rounded-xl mb-2 transition-all duration-200 ${activeItem === item.label
+                  ? 'bg-indigo-50 text-indigo-600 shadow-sm'
+                  : 'text-gray-600 hover:bg-gray-50 hover:scale-[1.02]'
+                }`}
             >
-              <item.icon className="mr-3 h-5 w-5" />
+              <item.icon className={`mr-3 h-5 w-5 ${activeItem === item.label
+                  ? 'text-indigo-600'
+                  : 'text-gray-400'
+                }`} />
               {item.label}
             </div>
           </Link>
         ))}
       </nav>
-      <div className="mt-auto">
+
+      <div className="pt-4 border-t border-gray-100">
         {otherMenuItems.map((item) => (
           <Link key={item.label} href={item.href}>
             <div
               onClick={() => handleItemClick(item.label)}
-              className="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className={`flex items-center py-3 px-4 rounded-xl transition-all duration-200 ${activeItem === item.label
+                  ? 'bg-gray-50 text-gray-800'
+                  : 'text-gray-600 hover:bg-gray-50 hover:scale-[1.02]'
+                }`}
             >
-              <item.icon className="mr-3 h-5 w-5" />
+              <item.icon className="mr-3 h-5 w-5 text-gray-400" />
               {item.label}
             </div>
           </Link>

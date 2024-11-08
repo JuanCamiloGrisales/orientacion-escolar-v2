@@ -144,28 +144,71 @@ function RegistroFormContent() {
     }
 
     return (
-        <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
-            <div className="max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="mx-auto px-8">
+            <div className="max-h-screen overflow-y-auto">
                 <form onSubmit={handleSubmit}>
-                    <h1 className="text-3xl font-bold mb-6">Registro de Atención</h1>
-                    <Tabs defaultValue="general" className="space-y-4">
-                        <TabsList>
-                            <TabsTrigger value="general">General</TabsTrigger>
-                            <TabsTrigger value="student">Datos Personales</TabsTrigger>
-                            <TabsTrigger value="family">Composición Familiar</TabsTrigger>
-                            <TabsTrigger value="agreements">Acuerdos de Atención</TabsTrigger>
-                            <TabsTrigger value="risks">Descripción de Situaciones de Riesgo a Nivel Individual</TabsTrigger>
-                            <TabsTrigger value="appreciation">Apreciación de la Docente Orientadora</TabsTrigger>
-                            <TabsTrigger value="additional">Información Adicional</TabsTrigger>
+                    {/* Header with gradient */}
+                    <div className="mb-8 my-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                            Registro de Atención
+                        </h1>
+                    </div>
+
+                    <Tabs defaultValue="general" className="space-y-6">
+                        <TabsList className="bg-white p-2 rounded-xl shadow-sm inline-flex h-auto space-x-2">
+                            <TabsTrigger
+                                value="general"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                General
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="student"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                Datos Personales
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="family"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                Composición Familiar
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="agreements"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                Acuerdos de Atención
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="risks"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                Descripción de Situaciones de Riesgo a Nivel Individual
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="appreciation"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                Apreciación de la Docente Orientadora
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="additional"
+                                className="px-6 py-2.5 rounded-lg transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md"
+                            >
+                                Información Adicional
+                            </TabsTrigger>
                         </TabsList>
 
                         {/* General */}
                         <TabsContent value="general">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Información General</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Información General
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <FormField
                                         section="general"
                                         field="fechaAtencion"
@@ -273,11 +316,13 @@ function RegistroFormContent() {
 
                         {/* Datos Personales */}
                         <TabsContent value="student">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Datos Personales del Estudiante</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Datos Personales del Estudiante
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <FormField
                                         section="student"
                                         field="nombreCompleto"
@@ -390,11 +435,13 @@ function RegistroFormContent() {
 
                         {/* Composición Familiar */}
                         <TabsContent value="family">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Composición Familiar</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Composición Familiar
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <div className="grid grid-cols-2 gap-4">
                                         <FormField
                                             section="family"
@@ -509,11 +556,13 @@ function RegistroFormContent() {
 
                         {/* Acuerdos de Atención */}
                         <TabsContent value="agreements">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Acuerdos de Atención</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Acuerdos de Atención
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <FormField
                                         section="agreements"
                                         field="expectativasEntrevistado"
@@ -536,11 +585,13 @@ function RegistroFormContent() {
 
                         {/* Descripción de Situaciones de Riesgo */}
                         <TabsContent value="risks">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Descripción de Situaciones de Riesgo a Nivel Individual</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Descripción de Situaciones de Riesgo a Nivel Individual
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <FormField
                                         section="risks"
                                         field="condicionDiscapacidad"
@@ -580,11 +631,13 @@ function RegistroFormContent() {
 
                         {/* Apreciación de la Docente */}
                         <TabsContent value="appreciation">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Apreciación de la Docente Orientadora</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Apreciación de la Docente Orientadora
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <FormField
                                         section="appreciation"
                                         field="observaciones"
@@ -615,11 +668,13 @@ function RegistroFormContent() {
 
                         {/* Información Adicional */}
                         <TabsContent value="additional">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Información Adicional</CardTitle>
+                            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
+                                        Información Adicional
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6">
                                     <FormField
                                         section="additional"
                                         field="fechaProximoSeguimiento"
@@ -681,9 +736,20 @@ function RegistroFormContent() {
 
                     </Tabs>
 
-                    <div className="mt-6 flex justify-end space-x-4">
-                        <Button type="button" variant="outline">Cancelar</Button>
-                        <Button type="submit">Registrar</Button>
+                    <div className="mt-8 mb-12 flex justify-end space-x-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="border-2 rounded-lg border-indigo-100 hover:border-indigo-200 transition-all duration-200 px-8 py-4 text-lg"
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-gradient-to-r rounded-lg from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 px-8 py-4 text-lg"
+                        >
+                            Registrar
+                        </Button>
                     </div>
                 </form>
             </div>
