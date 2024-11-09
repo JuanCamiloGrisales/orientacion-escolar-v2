@@ -3,10 +3,12 @@ import { useEstudiantes } from '@/lib/StudentsContext';
 import { format, formatRelative } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon, ClockIcon } from "lucide-react";
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 const UpcomingEvents: React.FC = () => {
     const { estudiantes } = useEstudiantes();
+    const router = useRouter();
 
     const upcomingEvents = estudiantes
         .filter(estudiante => estudiante.fechaProximoSeguimiento && new Date(estudiante.fechaProximoSeguimiento) > new Date())
@@ -21,6 +23,10 @@ const UpcomingEvents: React.FC = () => {
             .trim();
     };
 
+    const handleStudentClick = (nombreEstudiante: string) => {
+        router.push(`/student/${nombreEstudiante}`);
+    };
+
     return (
         <>
             <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
@@ -33,7 +39,8 @@ const UpcomingEvents: React.FC = () => {
                             <li
                                 key={event.id}
                                 className="flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 
-                                         transition-all duration-200 border border-transparent hover:border-indigo-50"
+                                         transition-all duration-200 border border-transparent hover:border-indigo-50 cursor-pointer"
+                                onClick={() => handleStudentClick(event.nombreEstudiante)}
                             >
                                 <Avatar className="h-12 w-12 ring-2 ring-indigo-100">
                                     <AvatarImage src="/placeholder.svg?height=48&width=48" />

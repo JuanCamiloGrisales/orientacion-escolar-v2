@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { useEstudiantes } from '@/lib/StudentsContext';
 import { Download, Edit3, Filter, MoreVertical, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import FilterModal, { Filters } from './FilterModal';
 
@@ -40,6 +41,7 @@ interface StudentListProps {
 
 const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) => {
     const { estudiantes, loading, error } = useEstudiantes();
+    const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [appliedFilters, setAppliedFilters] = useState<Filters>(DEFAULT_FILTERS);
@@ -104,6 +106,10 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
         setCurrentPage(page);
     };
 
+    const handleStudentClick = (nombreEstudiante: string) => {
+        router.push(`/student/${nombreEstudiante}`);
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
             <div className="flex justify-between items-center mb-6">
@@ -145,7 +151,7 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
                 </TableHeader>
                 <TableBody>
                     {currentStudents.map((student) => (
-                        <TableRow key={student.id}>
+                        <TableRow key={student.id} onClick={() => handleStudentClick(student.nombreEstudiante)} className="cursor-pointer">
                             <TableCell className="font-medium">
                                 <div className="flex items-center">
                                     <Avatar className="mr-2">
