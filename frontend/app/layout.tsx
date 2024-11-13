@@ -1,8 +1,9 @@
+"use client"
 import Sidebar from "@/components/Sidebar";
 import { EstudiantesProvider } from '@/lib/StudentsContext';
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { usePathname } from 'next/navigation';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -15,27 +16,29 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Orientación Escolar",
-  description: "Sistema de orientación escolar",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isDetailPage = pathname.startsWith('/detail/')
+
   return (
     <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <EstudiantesProvider>
-          <div className="flex h-screen bg-gray-100">
-            <Sidebar />
-            {children}
-          </div>
-        </EstudiantesProvider>
+        {isDetailPage ? (
+          <>{children}</>
+        ) : (
+          <EstudiantesProvider>
+            <div className="flex h-screen bg-gray-100">
+              <Sidebar />
+              {children}
+            </div>
+          </EstudiantesProvider>
+        )}
       </body>
     </html>
   );

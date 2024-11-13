@@ -13,19 +13,18 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { File, Pencil, Plus, Printer, Stars } from "lucide-react"
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import type { Registro } from '@/types/registro'
 
-interface StudentRecord {
-    fecha: string
-    resumen: string
-}
+interface StudentRecord extends Pick<Registro, 'id' | 'fecha' | 'resumen' | 'nombreEstudiante' | 'acuerdosPrevios' | 'remision' | 'piar' | 'compromisoPadres' | 'compromisoEstudiantes'> {}
 
 export default function StudentDetail() {
     const [studentRecords, setStudentRecords] = useState<StudentRecord[]>([])
     const [loading, setLoading] = useState(true)
     const [studentName, setStudentName] = useState<string | null>(null)
     const params = useParams()
+    const router = useRouter()
 
     useEffect(() => {
         const fetchRecords = async () => {
@@ -51,6 +50,10 @@ export default function StudentDetail() {
 
         fetchRecords()
     }, [params.nombreEstudiante])
+
+    const handleRecordClick = (id: number) => {
+        router.push(`/detail/${id}`)
+    }
 
     if (loading) return (
         <div className="flex justify-center items-center min-h-[50vh]">
@@ -86,8 +89,9 @@ export default function StudentDetail() {
                     <ContextMenu key={index}>
                         <ContextMenuTrigger>
                             <Card
+                                onClick={() => handleRecordClick(record.id)}
                                 className="w-[300px] h-[300px] p-6 flex flex-col gap-4 hover:shadow-xl 
-                transition-all duration-300 bg-gradient-to-br from-white to-gray-50"
+                                    transition-all duration-300 bg-gradient-to-br from-white to-gray-50 cursor-pointer"
                             >
                                 <div className="bg-indigo-50 rounded-xl p-3">
                                     <p className="text-sm text-indigo-600 font-medium text-center">

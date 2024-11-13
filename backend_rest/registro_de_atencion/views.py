@@ -1,10 +1,11 @@
 from django.db.models import Max
-from rest_framework import viewsets
+from django.http import FileResponse, Http404
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Registro
-from .serializers import RegistroLatestSerializer, RegistroSerializer
+from .models import Archivo, Registro
+from .serializers import ArchivoSerializer, RegistroLatestSerializer, RegistroSerializer, RegistroSummarySerializer
 
 
 class RegistroViewSet(viewsets.ModelViewSet):
@@ -27,5 +28,19 @@ class RegistroViewSet(viewsets.ModelViewSet):
             return Response({"error": "nombreEstudiante parameter is required"}, status=400)
 
         registros = Registro.objects.filter(nombreEstudiante=nombre_estudiante)
-        serializer = RegistroSerializer(registros, many=True)
+        serializer = RegistroSummarySerializer(registros, many=True)
         return Response(serializer.data)
+
+
+class ArchivoViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Archivo.objects.all()
+    serializer_class = ArchivoSerializer
+    permission_classes = [permissions.AllowAny]
+
+    @action(detail=True, methods=["get"], url_path="download")
+    def download(self, request, pk=None):
+        try:
+            archivo = self.get_object()
+            return FileResponse(archivo.archivo.open(), as_attachment=True, filename=archivo.archivo.name)
+        except Archivo.DoesNotExist:
+            raise Http404

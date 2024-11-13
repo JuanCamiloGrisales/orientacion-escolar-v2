@@ -1,7 +1,7 @@
 export interface Registro {
   id: number;
   consecutivo: number;
-  fecha: string | null;
+  fecha: string;
   municipio: string;
   institucion: string;
   dane: string;
@@ -40,7 +40,7 @@ export interface Registro {
   tipoFamilia: string;
   hogarYBienestar: string;
   espectativasEntrevistado: string;
-  acuerdosPrevios: number[];
+  acuerdosPrevios: Archivo[];
   condicionDiscapacidad: string;
   tipoDiscapacidad: string;
   talentoYCapacidadesExepcionales: string;
@@ -48,15 +48,14 @@ export interface Registro {
   observaciones: string;
   activacionRuta: string;
   procesosConvivencia: string;
-  remision: number[];
-  piar: number[];
+  remision: Archivo[];
+  piar: Archivo[];
   estadoCaso: string;
-  compromisoPadres: number[];
-  compromisoEstudiantes: number[];
-  fechaProximoSeguimiento: string | null;
+  compromisoPadres: Archivo[];
+  compromisoEstudiantes: Archivo[];
+  fechaProximoSeguimiento: string;
   nombreOrientadora: string;
   created: string;
-  form_data: any;
   resumen: string;
   slug: string;
   resumenRelato: string;
