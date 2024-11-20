@@ -1,6 +1,6 @@
 from django.db import models
 
-# Create your models here.
+from .files_reader import configurar_municipios
 
 
 def Default():
@@ -49,7 +49,7 @@ def DefaultPosiblesMotivosDeAtencion():
             "Consumo de sustancia psicoactivas",
             "Ideación suicida",
             "Intento de suicidio",
-            "Cuttin- autoflagelación",
+            "Cuttin- autoflagelaci��n",
             "Baja tolerancia a la frustración",
             "Dificultades- problemas cognitivos del aprendizaje",
             "Embarazos en adolescentes",
@@ -293,8 +293,13 @@ def DefaultNombreOrientadora():
     return {"default": "Amparo Garcés Vidal", "opciones": []}
 
 
+def DefaultMunicipio():
+    municipios = configurar_municipios()
+    return {"default": "", "opciones": municipios}
+
+
 class EditarCampos(models.Model):
-    municipio = models.JSONField(default=Default)
+    municipio = models.JSONField(default=DefaultMunicipio)
     institucion = models.JSONField(default=DefaultInstitucion)
     dane = models.JSONField(default=DefaultDane)
     sede = models.JSONField(default=DefaultSede)

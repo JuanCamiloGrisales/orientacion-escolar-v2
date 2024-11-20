@@ -1,9 +1,10 @@
 "use client"
 import Sidebar from "@/components/Sidebar";
+import { Toaster } from "@/components/ui/toaster";
 import { EstudiantesProvider } from '@/lib/StudentsContext';
 import localFont from "next/font/local";
-import "./globals.css";
 import { usePathname } from 'next/navigation';
+import "./globals.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,6 +40,7 @@ export default function RootLayout({
             </div>
           </EstudiantesProvider>
         )}
+        <Toaster />
       </body>
     </html>
   );

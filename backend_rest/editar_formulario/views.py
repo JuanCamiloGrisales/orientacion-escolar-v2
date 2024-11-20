@@ -6,7 +6,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .files_reader import configurar_estudiantes, configurar_municipios
+from .files_reader import configurar_estudiantes
 from .models import EditarCampos
 from .serializers import EditarCamposSerializer
 
@@ -54,45 +54,6 @@ class EditarCamposAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
 
-class UploadMunicipiosView(APIView):
-    """
-    Vista para manejar la carga de archivos de municipios y actualizar la instancia EditarCampos.
-    """
-
-    def post(self, request):
-        """
-        Maneja la solicitud POST para cargar un archivo de municipios.
-        """
-        file = request.FILES.get("file")
-        if not file:
-            return Response({"detail": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Guarda el archivo en el directorio apropiado
-        upload_dir = os.path.join(settings.BASE_DIR, "uploads")
-        if not os.path.exists(upload_dir):
-            os.makedirs(upload_dir)
-        file_path = os.path.join(upload_dir, "municipios.csv")
-
-        with open(file_path, "wb+") as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
-
-        # Procesa el archivo
-        try:
-            municipios = configurar_municipios()
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Actualiza la instancia EditarCampos
-        editar_campos, _ = EditarCampos.objects.get_or_create(id=1)
-        json_data = editar_campos.municipio
-        json_data["opciones"] = municipios
-        editar_campos.municipio = json_data
-        editar_campos.save()
-
-        return Response({"detail": "Municipios updated successfully."}, status=status.HTTP_200_OK)
-
-
 class UploadEstudiantesView(APIView):
     """
     Vista para manejar la carga de archivos de estudiantes y actualizar la instancia EditarCampos.
@@ -105,6 +66,12 @@ class UploadEstudiantesView(APIView):
         file = request.FILES.get("file")
         if not file:
             return Response({"detail": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verifica que el archivo sea .xlsx
+        if not file.name.endswith(".xlsx"):
+            return Response(
+                {"detail": "Invalid file type. Only .xlsx files are allowed."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Guarda el archivo en el directorio apropiado
         upload_dir = os.path.join(settings.BASE_DIR, "uploads")
