@@ -9,6 +9,17 @@ const MainContent = () => {
   const [selectedTab, setSelectedTab] = useState('General');
   const tabs = ['General', 'Orientación', 'Prevención', 'Intervención'];
 
+  const normalizeText = (text: string): string => {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .split('')
+      .sort()
+      .join('')
+      .trim();
+  };
+
   return (
     <main className="flex-1 p-8 flex flex-col bg-gray-50/50">
       {/* Header with gradient background */}
@@ -47,7 +58,7 @@ const MainContent = () => {
               </button>
             ))}
           </div>
-          <StudentList searchTerm={searchTerm} selectedTab={selectedTab} />
+          <StudentList searchTerm={normalizeText(searchTerm)} selectedTab={selectedTab} />
         </div>
 
         {/* Right Column */}

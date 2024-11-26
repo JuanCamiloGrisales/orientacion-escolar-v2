@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, Download, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { refreshAutocompleteData } from "../registro-de-atencion/AutocompleteContext";
 
 export default function SettingsPage() {
     const { toast } = useToast();
@@ -53,6 +54,7 @@ export default function SettingsPage() {
         } finally {
             setIsUploading(false);
             if (event.target) event.target.value = '';
+            refreshAutocompleteData();
         }
     };
 
@@ -104,6 +106,7 @@ export default function SettingsPage() {
             setIsAlertOpen(false);
             setSelectedFile(null);
             if (backupInputRef.current) backupInputRef.current.value = '';
+            refreshAutocompleteData();
         }
     };
 

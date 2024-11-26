@@ -1,8 +1,11 @@
 import csv
+import locale
 import os
 
 import pandas as pd
 from django.conf import settings
+
+locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")
 
 
 def configurar_municipios():
@@ -56,13 +59,13 @@ def configurar_estudiantes():
         grado_escolaridad = fila[1]["GRADO_COD"] if pd.notna(fila[1]["GRADO_COD"]) else ""
 
         alumnos[nombre_completo] = {
-            "tipo_documento": tipo_documento,
-            "numero_documento": numero_documento,
+            "tipoDocumento": tipo_documento,
+            "numeroDocumento": numero_documento,
             "eps": eps,
-            "fecha_nacimiento": fecha_nacimiento,
-            "lugar_nacimiento": lugar_nacimiento,
+            "fechaNacimiento": fecha_nacimiento,
+            "lugarNacimiento": lugar_nacimiento,
             "barrio": barrio,
-            "grado_escolaridad": grado_escolaridad,
+            "gradoEscolaridad": grado_escolaridad,
         }
 
     return alumnos

@@ -1,6 +1,8 @@
+import json
+
 from django.db.models import Max
 from django.http import FileResponse, Http404
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -12,6 +14,35 @@ class RegistroViewSet(viewsets.ModelViewSet):
     queryset = Registro.objects.all()
     serializer_class = RegistroSerializer
     permission_classes = []
+
+    def create(self, request, *args, **kwargs):
+        try:
+            # Parse JSON data
+            json_data = json.loads(request.data.get("json_data", "{}"))
+
+            # Create Registro instance
+            serializer = self.get_serializer(data=json_data)
+            serializer.is_valid(raise_exception=True)
+            registro = serializer.save()
+
+            # Map frontend field names to model field names
+            file_fields_map = {
+                "acuerdos_previos": "acuerdosPrevios",
+                "remision": "remision",
+                "piar": "piar",
+            }
+
+            # Process files
+            for frontend_field, model_field in file_fields_map.items():
+                if frontend_field in request.FILES:
+                    files = request.FILES.getlist(frontend_field)
+                    for file in files:
+                        archivo = Archivo.objects.create(archivo=file)
+                        getattr(registro, model_field).add(archivo)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"], url_path="latest-per-alumno")
     def latest_per_alumno(self, request):

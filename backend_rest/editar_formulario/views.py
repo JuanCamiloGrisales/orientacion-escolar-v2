@@ -6,7 +6,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .files_reader import configurar_estudiantes
+from .files_reader import configurar_estudiantes, configurar_municipios
 from .models import EditarCampos
 from .serializers import EditarCamposSerializer
 
@@ -23,6 +23,9 @@ class EditarCamposAPIView(RetrieveUpdateAPIView):
         Obtiene la instancia única de EditarCampos, creándola si no existe.
         """
         obj, created = EditarCampos.objects.get_or_create(id=1)
+        if not obj.municipio["opciones"]:
+            obj.municipio["opciones"] = configurar_municipios()
+            obj.save()
         return obj
 
     def perform_update(self, serializer):
@@ -100,3 +103,17 @@ class UploadEstudiantesView(APIView):
         editar_campos.save()
 
         return Response({"detail": "Estudiantes updated successfully."}, status=status.HTTP_200_OK)
+
+
+class EstudiantesListView(APIView):
+    """
+    Vista para obtener la lista completa de estudiantes.
+    """
+
+    def get(self, request):
+        try:
+            estudiantes = configurar_estudiantes()
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(estudiantes, status=status.HTTP_200_OK)

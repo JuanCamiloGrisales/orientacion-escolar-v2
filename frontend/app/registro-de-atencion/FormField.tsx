@@ -31,12 +31,21 @@ const FormField: React.FC<FormFieldProps> = ({
     type = "text",
     label,
     value,
+    required = false,
     options = [],
     onChange,
     ...props
 }) => {
     const [showOptions, setShowOptions] = useState(false);
     const [editorValue, setEditorValue] = useState(value || '');
+    const isMounted = React.useRef(false);
+
+    useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
 
     useEffect(() => {
         setEditorValue(value || '');
@@ -59,7 +68,18 @@ const FormField: React.FC<FormFieldProps> = ({
 
     const handleOptionClick = (option: string) => {
         onChange(section, field, option);
-        setShowOptions(false);
+        // Remove the setShowOptions call here as we'll handle it differently
+    };
+
+    // Add new function to handle option mouse interaction
+    const handleOptionMouseDown = (e: React.MouseEvent, option: string) => {
+        e.preventDefault(); // Prevent blur event from firing before click
+        requestAnimationFrame(() => {
+            if (isMounted.current) {
+                handleOptionClick(option);
+                setShowOptions(false);
+            }
+        });
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -112,6 +132,7 @@ const FormField: React.FC<FormFieldProps> = ({
                         </Popover>
                         <Input
                             type="time"
+                            required={required}
                             className="w-[150px] border-2 border-indigo-100 focus:border-indigo-300 rounded-lg"
                             value={value ? format(new Date(value), "HH:mm") : ""}
                             onChange={(e) => {
@@ -170,7 +191,12 @@ const FormField: React.FC<FormFieldProps> = ({
                             id={id}
                             type="file"
                             multiple
-                            onChange={handleInputChange}
+                            onChange={(e) => {
+                                const files = e.target.files;
+                                if (files) {
+                                    onChange(section, field, files);
+                                }
+                            }}
                             {...props}
                         />
                         <Button type="button">
@@ -178,11 +204,21 @@ const FormField: React.FC<FormFieldProps> = ({
                             Subir
                         </Button>
                     </div>
-                    {Array.isArray(value) && (
+                    {value?.preview && (
                         <div className="mt-2 space-y-1">
-                            {value.map((file: File, index: number) => (
-                                <div key={index} className="text-sm">
-                                    {file.name}
+                            {value.files.map((file: File, index: number) => (
+                                <div key={index} className="text-sm flex items-center space-x-2">
+                                    <span>{file.name}</span>
+                                    {value.preview[index] && (
+                                        <a
+                                            href={value.preview[index]}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-indigo-500 hover:text-indigo-600"
+                                        >
+                                            Ver
+                                        </a>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -199,34 +235,46 @@ const FormField: React.FC<FormFieldProps> = ({
                             id={id}
                             type={type}
                             value={value || ''}
+                            required={required}
                             onChange={handleInputChange}
                             className="border-2 border-indigo-100 focus:border-indigo-300 rounded-lg
                                      transition-all duration-200 shadow-sm"
                             onFocus={() => options.length > 0 && setShowOptions(true)}
-                            onBlur={() => setTimeout(() => setShowOptions(false))}
+                            onBlur={() => {
+                                // Delay hiding options to allow click to register
+                                setTimeout(() => setShowOptions(false), 200);
+                            }}
                             onKeyDown={handleKeyDown}
                             autoComplete="off"
                             {...props}
                         />
                         {options.length > 0 && showOptions && (
-                            <div className="absolute z-10 w-full mt-1 bg-white rounded-xl border-2 border-indigo-100 
-                                          shadow-lg overflow-hidden">
-                                {filteredOptions.length > 0 ? (
-                                    filteredOptions.map((option, index) => (
-                                        <div
-                                            key={index}
-                                            className="px-4 py-2 hover:bg-indigo-50 cursor-pointer transition-colors"
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                handleOptionClick(option);
-                                            }}
-                                        >
-                                            {option}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="px-4 py-2 text-gray-500">No hay opciones</div>
-                                )}
+                            <div className="absolute z-10 w-full mt-1 bg-white rounded-2xl border-2 border-indigo-100 
+                                          shadow-lg max-h-[280px] overflow-hidden">
+                                <div className="p-2">
+                                    <div className="overflow-y-auto max-h-[260px] scrollbar-thin scrollbar-thumb-indigo-200 
+                                                  scrollbar-track-transparent scrollbar-thumb-rounded-full">
+                                        {filteredOptions.length > 0 ? (
+                                            <div className="space-y-1">
+                                                {filteredOptions.map((option, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="px-3 py-2 rounded-xl hover:bg-indigo-50 cursor-pointer 
+                                                                 transition-colors duration-150 text-gray-700 text-sm
+                                                                 hover:text-indigo-600 flex items-center"
+                                                        onMouseDown={(e) => handleOptionMouseDown(e, option)}
+                                                    >
+                                                        {option}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="px-3 py-2 text-sm text-gray-500 text-center">
+                                                No se encontraron opciones
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>

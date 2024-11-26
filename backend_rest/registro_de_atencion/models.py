@@ -34,7 +34,7 @@ class Registro(models.Model):
     entidadPrestadoraDeSalud = models.CharField(max_length=500, null=True, blank=True, default="no establecido")
     personaDeConfianza = models.CharField(max_length=500, null=True, blank=True, default="no establecido")
     # ------------------
-    nombreEstudiante = models.CharField(max_length=500, null=True, blank=True, default="no establecido")
+    nombreEstudiante = models.CharField(max_length=500)
     tipoDocumentoEstudiante = models.CharField(max_length=500, null=True, blank=True, default="no establecido")
     numeroDocumentoEstudiante = models.CharField(max_length=500, null=True, blank=True, default="no establecido")
     gradoEscolaridad = models.CharField(max_length=500, null=True, blank=True, default="no establecido")

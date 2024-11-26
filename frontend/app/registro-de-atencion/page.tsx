@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import axios from 'axios';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AutocompleteProvider, useAutocomplete } from './AutocompleteContext';
 import FormField from './FormField';
@@ -19,6 +20,8 @@ export default function RegistroForm() {
 function RegistroFormContent() {
     const autocompleteData = useAutocomplete();
     const [formData, setFormData] = useState<FormData | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [studentsData, setStudentsData] = useState<Record<string, any>>({});
 
     useEffect(() => {
         if (autocompleteData && !formData) {
@@ -43,7 +46,7 @@ function RegistroFormContent() {
                     numeroDocumento: '',
                     gradoEscolaridad: autocompleteData.gradoEscolaridad.default || "",
                     numeroTelefono: '',
-                    eps: '',
+                    eps: autocompleteData.entidadPrestadoraDeSalud.default || "",
                     edad: '',
                     fechaNacimiento: null,
                     lugarNacimiento: '',
@@ -66,7 +69,10 @@ function RegistroFormContent() {
                 },
                 agreements: {
                     expectativasEntrevistado: '',
-                    acuerdosPrevios: [],
+                    acuerdosPrevios: {
+                        files: [],
+                        preview: []
+                    },
                 },
                 risks: {
                     condicionDiscapacidad: '',
@@ -81,16 +87,41 @@ function RegistroFormContent() {
                 },
                 additional: {
                     fechaProximoSeguimiento: null,
-                    remision: [],
-                    piar: [],
+                    remision: {
+                        files: [],
+                        preview: []
+                    },
+                    piar: {
+                        files: [],
+                        preview: []
+                    },
                     estadoDelCaso: '',
-                    compromisoPadres: [],
-                    compromisoEstudiantes: [],
+                    compromisoPadres: {
+                        files: [],
+                        preview: []
+                    },
+                    compromisoEstudiantes: {
+                        files: [],
+                        preview: []
+                    },
                     nombreQuienRealiza: '',
                 },
             });
         }
     }, [autocompleteData, formData]);
+
+    useEffect(() => {
+        const fetchStudentsData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/lista-estudiantes/');
+                setStudentsData(response.data);
+            } catch (error) {
+                console.error('Failed to fetch students data:', error);
+            }
+        };
+
+        fetchStudentsData();
+    }, []);
 
     const memoizedOptions = useMemo(() => {
         if (!autocompleteData) return {};
@@ -127,26 +158,238 @@ function RegistroFormContent() {
 
     const handleChange = (section: string, field: string, value: any) => {
         setFormData(prev => {
-            const updated = {
-                ...prev!,
-                [section]: { ...prev![section], [field]: value }
+            if (!prev) return prev;
+
+            // Si es un campo de archivo (FileList)
+            if (value instanceof FileList) {
+                const files = Array.from(value);
+
+                // Solo revocar URLs si realmente estamos reemplazando archivos
+                if (files.length > 0) {
+                    // Revocar URLs antiguas solo del campo específico
+                    if (prev[section][field]?.preview) {
+                        prev[section][field].preview.forEach(URL.revokeObjectURL);
+                    }
+
+                    // Crear nuevas URLs de vista previa
+                    const previews = files.map(file => URL.createObjectURL(file));
+
+                    return {
+                        ...prev,
+                        [section]: {
+                            ...prev[section],
+                            [field]: {
+                                files,
+                                preview: previews
+                            }
+                        }
+                    };
+                }
+                return prev; // No modificar el estado si no hay nuevos archivos
+            }
+
+            // Para otros campos
+            return {
+                ...prev,
+                [section]: {
+                    ...prev[section],
+                    [field]: value
+                }
             };
-            return updated;
         });
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleStudentChange = (section: string, field: string, value: any) => {
+        handleChange(section, field, value);
+        if (field === 'nombreCompleto' && studentsData[value]) {
+            const studentInfo = studentsData[value];
+            handleChange('student', 'tipoDocumento', studentInfo.tipoDocumento);
+            handleChange('student', 'numeroDocumento', studentInfo.numeroDocumento);
+            handleChange('student', 'eps', studentInfo.eps);
+            handleChange('student', 'fechaNacimiento', studentInfo.fechaNacimiento);
+            handleChange('student', 'lugarNacimiento', studentInfo.lugarNacimiento);
+            handleChange('student', 'gradoEscolaridad', studentInfo.gradoEscolaridad);
+        }
     };
 
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        try {
+            const formDataObj = new FormData();
+
+            // Flatten the form data structure and convert to camelCase
+            const flattenedData = {
+                // General section
+                fecha: formData.general.fechaAtencion,
+                municipio: formData.general.municipio,
+                institucion: formData.general.nombreEstablecimiento,
+                dane: formData.general.codigoDane,
+                sede: formData.general.sede,
+                remitidoPor: formData.general.remitidoPor,
+                nombreRemitidoPor: formData.general.nombreRemitente,
+                posiblesMotivosDeAtencion: formData.general.posiblesMotivos,
+                lineaDeAtencion: formData.general.lineaAtencion,
+                tipoDeAtencion: formData.general.tipoAtencion,
+                entidadPrestadoraDeSalud: formData.general.entidadSalud,
+                personaDeConfianza: formData.general.personaConfianza,
+
+                // Student section
+                nombreEstudiante: formData.student.nombreCompleto,
+                tipoDocumentoEstudiante: formData.student.tipoDocumento,
+                numeroDocumentoEstudiante: formData.student.numeroDocumento,
+                gradoEscolaridad: formData.student.gradoEscolaridad,
+                numeroTelefonoEstudiante: formData.student.numeroTelefono,
+                epsEstudiante: formData.student.eps,
+                edadEstudiante: formData.student.edad,
+                fechaNacimientoEstudiante: formData.student.fechaNacimiento,
+                lugarNacimientoEstudiante: formData.student.lugarNacimiento,
+                parentescoAcudiente: formData.student.acudienteParentesco,
+                telefonoAcudiente: formData.student.telefonoAcudiente,
+                documentoAcudiente: formData.student.documentoAcudiente,
+                direccion: formData.student.direccionAcudiente,
+
+                // Family section
+                sexo: formData.family.sexo,
+                genero: formData.family.genero,
+                parentesco: formData.family.parentesco,
+                nombre: formData.family.nombreFamiliar,
+                edad: formData.family.edadFamiliar,
+                ocupacion: formData.family.ocupacionFamiliar,
+                nivelEducativo: formData.family.nivelEducativoFamiliar,
+                estadoCivil: formData.family.estadoCivilFamiliar,
+                numeroHijos: formData.family.numeroHijosFamiliar,
+                telefono: formData.family.telefonoFamiliar,
+                lugarResidencia: formData.family.lugarResidenciaFamiliar,
+                tipoFamilia: formData.family.tipoFamilia,
+                hogarYBienestar: formData.family.hogarYBienestar,
+
+                // Agreements section
+                espectativasEntrevistado: formData.agreements.expectativasEntrevistado,
+
+                // Risks section
+                condicionDiscapacidad: formData.risks.condicionDiscapacidad,
+                tipoDiscapacidad: formData.risks.tipoDiscapacidad,
+                talentoYCapacidadesExepcionales: formData.risks.talentoCapacidades,
+                relatoEntrevistado: formData.risks.relatoEntrevistado,
+
+                // Appreciation section
+                observaciones: formData.appreciation.observaciones,
+                activacionRuta: formData.appreciation.activacionRuta,
+                procesosConvivencia: formData.appreciation.procesosConvivencia,
+
+                // Additional section
+                fechaProximoSeguimiento: formData.additional.fechaProximoSeguimiento,
+                estadoCaso: formData.additional.estadoDelCaso,
+                nombreOrientadora: formData.additional.nombreQuienRealiza
+            };
+
+            // Append the flattened JSON data
+            formDataObj.append('json_data', JSON.stringify(flattenedData));
+
+            // Append files
+            const appendFiles = (fieldName: string, fileData: { files: File[] }) => {
+                if (fileData?.files?.length > 0) {
+                    fileData.files.forEach((file, index) => {
+                        formDataObj.append(`${fieldName}`, file);
+                    });
+                }
+            };
+
+            appendFiles('acuerdos_previos', formData.agreements.acuerdosPrevios);
+            appendFiles('remision', formData.additional.remision);
+            appendFiles('piar', formData.additional.piar);
+            appendFiles('compromiso_padres', formData.additional.compromisoPadres);
+            appendFiles('compromiso_estudiantes', formData.additional.compromisoEstudiantes);
+
+            const response = await axios.post('http://127.0.0.1:8000/api/registros/', formDataObj, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 201) {
+                // Limpiar las URLs de vista previa
+                Object.values(formData.agreements).forEach(value => {
+                    if (value?.preview) {
+                        value.preview.forEach(URL.revokeObjectURL);
+                    }
+                });
+                Object.values(formData.additional).forEach(value => {
+                    if (value?.preview) {
+                        value.preview.forEach(URL.revokeObjectURL);
+                    }
+                });
+
+                alert('Registro creado exitosamente');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            setError('Error al enviar el formulario');
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (formData) {
+                // Lista de campos de archivo por sección
+                const fileFields = {
+                    agreements: ['acuerdosPrevios'],
+                    additional: ['remision', 'piar', 'compromisoPadres', 'compromisoEstudiantes']
+                };
+
+                // Limpiar URLs de vista previa solo al desmontar el componente
+                Object.entries(fileFields).forEach(([section, fields]) => {
+                    fields.forEach(field => {
+                        const fieldData = formData[section]?.[field];
+                        if (fieldData?.preview?.length > 0) {
+                            fieldData.preview.forEach(url => {
+                                try {
+                                    URL.revokeObjectURL(url);
+                                } catch (e) {
+                                    console.warn('Error al revocar URL:', e);
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+        };
+    }, []); // Solo se ejecuta al desmontar
+
+    // Al cambiar de pestaña, mantener las URLs de vista previa
+    const handleTabChange = (tab: string) => {
+        // No hacer nada aquí, simplemente dejar que las URLs persistan
+    };
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-6 text-red-500">
+                Error: {error}
+            </div>
+        );
+    }
+
     if (!autocompleteData || !formData) {
-        return <div className="container mx-auto p-6">Cargando...</div>;
+        return (
+            <div className="container mx-auto p-6">
+                <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="mx-auto px-8">
             <div className="max-h-screen overflow-y-auto">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
                     {/* Header with gradient */}
                     <div className="mb-8 my-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
                         <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 text-transparent bg-clip-text">
@@ -154,7 +397,7 @@ function RegistroFormContent() {
                         </h1>
                     </div>
 
-                    <Tabs defaultValue="general" className="space-y-6">
+                    <Tabs defaultValue="general" className="space-y-6" onValueChange={handleTabChange}>
                         <TabsList className="bg-white p-2 rounded-xl shadow-sm inline-flex h-auto space-x-2">
                             <TabsTrigger
                                 value="general"
@@ -272,10 +515,10 @@ function RegistroFormContent() {
                                     <FormField
                                         section="general"
                                         field="posiblesMotivos"
-                                        type="richtext"
                                         value={formData.general.posiblesMotivos}
                                         onChange={handleChange}
                                         label="Posibles Motivos de Atención"
+                                        options={memoizedOptions.posiblesMotivosDeAtencion}
                                     />
                                     <div className="grid grid-cols-2 gap-4">
                                         <FormField
@@ -327,9 +570,10 @@ function RegistroFormContent() {
                                         section="student"
                                         field="nombreCompleto"
                                         value={formData.student.nombreCompleto}
-                                        onChange={handleChange}
+                                        onChange={handleStudentChange}
                                         label="Nombre Completo"
                                         options={memoizedOptions.nombreEstudiante}
+                                        required
                                     />
                                     <div className="grid grid-cols-2 gap-4">
                                         <FormField
@@ -371,6 +615,7 @@ function RegistroFormContent() {
                                             value={formData.student.eps}
                                             onChange={handleChange}
                                             label="EPS"
+                                            options={memoizedOptions.entidadPrestadoraDeSalud}
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">

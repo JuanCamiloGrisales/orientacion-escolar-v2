@@ -69,21 +69,91 @@ const StudentList: React.FC<StudentListProps> = ({ searchTerm, selectedTab }) =>
         return <div>Error: {error}</div>;
     }
 
+    const matchesSearch = (studentName: string, search: string): boolean => {
+        if (!search) return true;
 
-    const filteredStudents = estudiantes.filter((student) => {
-        const searchMatch = student.nombreEstudiante.toLowerCase().includes(searchTerm.toLowerCase());
-        const tabMatch = selectedTab === 'General' || student.lineaDeAtencion === selectedTab;  // Filter by tab
+        const normalizedName = studentName
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
 
-        const gradoMatch = appliedFilters.gradoEscolaridad.length === 0 || appliedFilters.gradoEscolaridad.includes(student.gradoEscolaridad);
+        const normalizedSearch = search
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
 
-        let fechaMatch = true;
-        if (appliedFilters.fechaProximoSeguimiento.from && appliedFilters.fechaProximoSeguimiento.to) {
-            const fecha = new Date(student.fechaProximoSeguimiento);
-            fechaMatch = fecha >= appliedFilters.fechaProximoSeguimiento.from && fecha <= appliedFilters.fechaProximoSeguimiento.to;
+        // Comprueba si todos los caracteres de búsqueda están en el nombre
+        return normalizedSearch.split('').every(char =>
+            normalizedName.includes(char)
+        );
+    };
+
+    const calculateMatchScore = (studentName: string, search: string): number => {
+        if (!search) return 1;
+
+        const normalizedName = studentName
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+
+        const normalizedSearch = search
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+
+        let score = 0;
+        let consecutiveMatches = 0;
+        let lastMatchIndex = -1;
+
+        // Busca caracteres consecutivos
+        for (let i = 0; i < normalizedSearch.length; i++) {
+            const char = normalizedSearch[i];
+            const index = normalizedName.indexOf(char, lastMatchIndex + 1);
+
+            if (index !== -1) {
+                if (index === lastMatchIndex + 1) {
+                    consecutiveMatches++;
+                    score += consecutiveMatches * 2; // Bonus por caracteres consecutivos
+                } else {
+                    consecutiveMatches = 0;
+                    score += 1;
+                }
+                lastMatchIndex = index;
+            }
         }
 
-        return searchMatch && tabMatch && gradoMatch && fechaMatch;
-    });
+        // Bonus si los caracteres están en el mismo orden
+        if (normalizedName.includes(normalizedSearch)) {
+            score += 10;
+        }
+
+        return score;
+    };
+
+    const filteredStudents = estudiantes
+        .filter((student) => {
+            const searchMatch = matchesSearch(student.nombreEstudiante, searchTerm);
+            const tabMatch = selectedTab === 'General' || student.lineaDeAtencion === selectedTab;  // Filter by tab
+
+            const gradoMatch = appliedFilters.gradoEscolaridad.length === 0 || appliedFilters.gradoEscolaridad.includes(student.gradoEscolaridad);
+
+            let fechaMatch = true;
+            if (appliedFilters.fechaProximoSeguimiento.from && appliedFilters.fechaProximoSeguimiento.to) {
+                const fecha = new Date(student.fechaProximoSeguimiento);
+                fechaMatch = fecha >= appliedFilters.fechaProximoSeguimiento.from && fecha <= appliedFilters.fechaProximoSeguimiento.to;
+            }
+
+            return searchMatch && tabMatch && gradoMatch && fechaMatch;
+        })
+        .map(student => ({
+            ...student,
+            matchScore: calculateMatchScore(student.nombreEstudiante, searchTerm)
+        }))
+        .sort((a, b) => b.matchScore - a.matchScore);
 
 
     const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
