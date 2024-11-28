@@ -82,7 +82,6 @@ class Registro(models.Model):
     nombreOrientadora = models.CharField(max_length=500, null=True, blank=True, default="no establecido")
     # ------------------
     created = models.DateTimeField(auto_now_add=True)
-    form_data = models.JSONField(null=True, blank=True)
     resumen = models.TextField(null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
     resumenRelato = models.TextField(null=True, blank=True)

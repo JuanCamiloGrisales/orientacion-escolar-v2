@@ -20,6 +20,8 @@ class RegistroViewSet(viewsets.ModelViewSet):
             # Parse JSON data
             json_data = json.loads(request.data.get("json_data", "{}"))
 
+            print(json_data)
+
             # Create Registro instance
             serializer = self.get_serializer(data=json_data)
             serializer.is_valid(raise_exception=True)
@@ -30,6 +32,8 @@ class RegistroViewSet(viewsets.ModelViewSet):
                 "acuerdos_previos": "acuerdosPrevios",
                 "remision": "remision",
                 "piar": "piar",
+                "compromiso_padres": "compromisoPadres",
+                "compromiso_estudiantes": "compromisoEstudiantes",
             }
 
             # Process files

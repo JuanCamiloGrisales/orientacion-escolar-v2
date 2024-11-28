@@ -51,6 +51,10 @@ class RegistroSerializer(serializers.ModelSerializer):
 
         return registro
 
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        return instance
+
 
 class RegistroLatestSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()

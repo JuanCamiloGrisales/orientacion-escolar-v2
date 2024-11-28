@@ -2,32 +2,40 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AutocompleteProvider, useAutocomplete } from './AutocompleteContext';
 import FormField from './FormField';
+import { FormFillProvider, useFormFillContext } from './FormFillContext';
 
 type FormData = Record<string, Record<string, any>>;
 
 export default function RegistroForm() {
     return (
         <AutocompleteProvider>
-            <RegistroFormContent />
+            <FormFillProvider>
+                <RegistroFormContent />
+            </FormFillProvider>
         </AutocompleteProvider>
     );
 }
 
 function RegistroFormContent() {
+    const { fillFormWithData } = useFormFillContext();
     const autocompleteData = useAutocomplete();
+    const { toast } = useToast();
     const [formData, setFormData] = useState<FormData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [studentsData, setStudentsData] = useState<Record<string, any>>({});
+    const router = useRouter();
 
     useEffect(() => {
         if (autocompleteData && !formData) {
             setFormData({
                 general: {
-                    fechaAtencion: null,
+                    fechaAtencion: new Date().toISOString(),
                     municipio: autocompleteData.municipio.default || "",
                     nombreEstablecimiento: autocompleteData.institucion.default || "",
                     codigoDane: autocompleteData.dane.default || "",
@@ -215,6 +223,15 @@ function RegistroFormContent() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!formData?.student.nombreCompleto) {
+            toast({
+                title: "Campo requerido",
+                description: "El nombre completo  del estudiante es obligatorio.",
+                variant: "destructive",
+            });
+            return;
+        }
+
         try {
             const formDataObj = new FormData();
 
@@ -309,28 +326,37 @@ function RegistroFormContent() {
             });
 
             if (response.status === 201) {
-                // Limpiar las URLs de vista previa
-                Object.values(formData.agreements).forEach(value => {
-                    if (value?.preview) {
-                        value.preview.forEach(URL.revokeObjectURL);
-                    }
-                });
-                Object.values(formData.additional).forEach(value => {
-                    if (value?.preview) {
-                        value.preview.forEach(URL.revokeObjectURL);
-                    }
+                // Clear form data
+                setFormData(null);
+
+                // Show success toast
+                toast({
+                    title: "Registro creado exitosamente",
+                    description: "El registro ha sido creado correctamente.",
+                    variant: "default",
                 });
 
-                alert('Registro creado exitosamente');
+                // Redirect to student detail view
+                const studentName = formData.student.nombreCompleto;
+                router.push(`/student/${studentName}`);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
             setError('Error al enviar el formulario');
+            toast({
+                title: "Error",
+                description: "Error al enviar el formulario.",
+                variant: "destructive",
+            });
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-        if (e.key === 'Enter') {
+        const target = e.target as HTMLElement;
+        const tagName = target.tagName.toLowerCase();
+        const isRichText = target.getAttribute('contenteditable') === 'true';
+
+        if (e.key === 'Enter' && !isRichText && tagName !== 'textarea') {
             e.preventDefault();
         }
     };
@@ -366,6 +392,11 @@ function RegistroFormContent() {
     // Al cambiar de pestaña, mantener las URLs de vista previa
     const handleTabChange = (tab: string) => {
         // No hacer nada aquí, simplemente dejar que las URLs persistan
+    };
+
+    // Agrega esta función para exponer el llenado del formulario
+    const previewFormData = async (jsonData: any) => {
+        fillFormWithData(jsonData);
     };
 
     if (error) {
@@ -457,7 +488,7 @@ function RegistroFormContent() {
                                         field="fechaAtencion"
                                         type="date"
                                         label="Fecha de Atención"
-                                        value={formData.general.fechaAtencion || new Date().toISOString()}
+                                        value={formData.general.fechaAtencion}
                                         onChange={handleChange}
                                     />
                                     <div className="grid grid-cols-2 gap-4">
