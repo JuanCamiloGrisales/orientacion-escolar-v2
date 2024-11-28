@@ -1,6 +1,5 @@
-
-import { useState } from 'react';
-import { FormData, FormFillService } from './types';
+import { useState } from "react";
+import { FormData, FormFillService } from "./types";
 
 export function useFormFill() {
   const [formData, setFormData] = useState<FormData | null>(null);
@@ -27,7 +26,7 @@ export function useFormFill() {
         },
         // ... mapea el resto de secciones
       };
-    }
+    },
   };
 
   const fillFormWithData = (data: any) => {

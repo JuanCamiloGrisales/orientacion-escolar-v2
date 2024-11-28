@@ -1,9 +1,9 @@
-"use client"
+"use client";
 import Sidebar from "@/components/Sidebar";
 import { Toaster } from "@/components/ui/toaster";
-import { EstudiantesProvider } from '@/lib/StudentsContext';
+import { EstudiantesProvider } from "@/lib/StudentsContext";
 import localFont from "next/font/local";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isDetailPage = pathname.startsWith('/detail/')
+  const isDetailPage = pathname.startsWith("/detail/");
 
   return (
     <html lang="es">

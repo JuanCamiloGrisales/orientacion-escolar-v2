@@ -1,7 +1,7 @@
-import StudentDetail from '@/components/StudentDetail'
+import StudentDetail from "@/components/StudentDetail";
 
 function StudentDetailPage() {
-    return <StudentDetail />
+  return <StudentDetail />;
 }
 
-export default StudentDetailPage
+export default StudentDetailPage;

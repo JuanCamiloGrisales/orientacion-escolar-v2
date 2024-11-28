@@ -1,22 +1,22 @@
 "use client";
-import { Search } from 'lucide-react';
-import { useState } from 'react';
-import StudentList from './StudentList';
-import UpcomingEvents from './UpcomingEvents';
+import { Search } from "lucide-react";
+import { useState } from "react";
+import StudentList from "./StudentList";
+import UpcomingEvents from "./UpcomingEvents";
 
 const MainContent = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTab, setSelectedTab] = useState('General');
-  const tabs = ['General', 'Orientación', 'Prevención', 'Intervención'];
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTab, setSelectedTab] = useState("General");
+  const tabs = ["General", "Orientación", "Prevención", "Intervención"];
 
   const normalizeText = (text: string): string => {
     return text
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .split('')
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .split("")
       .sort()
-      .join('')
+      .join("")
       .trim();
   };
 
@@ -24,7 +24,9 @@ const MainContent = () => {
     <main className="flex-1 p-8 flex flex-col bg-gray-50/50">
       {/* Header with gradient background */}
       <header className="w-full mb-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Panel de Control</h1>
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">
+          Panel de Control
+        </h1>
         <div className="relative w-full max-w-lg">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-indigo-400" />
           <input
@@ -49,16 +51,20 @@ const MainContent = () => {
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
                 className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-medium
-                  ${tab === selectedTab
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-50'
+                  ${
+                    tab === selectedTab
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
               >
                 {tab}
               </button>
             ))}
           </div>
-          <StudentList searchTerm={normalizeText(searchTerm)} selectedTab={selectedTab} />
+          <StudentList
+            searchTerm={normalizeText(searchTerm)}
+            selectedTab={selectedTab}
+          />
         </div>
 
         {/* Right Column */}

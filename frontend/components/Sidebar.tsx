@@ -1,24 +1,23 @@
 "use client";
-import {
-  BarChart,
-  FileText,
-  Home,
-  Settings
-} from 'lucide-react';
-import Link from 'next/link';
-import React, { useState } from 'react';
+import { BarChart, FileText, Home, Settings } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
 
 const Sidebar: React.FC = () => {
-  const [activeItem, setActiveItem] = useState<string>('Inicio');
+  const [activeItem, setActiveItem] = useState<string>("Inicio");
 
   const menuItems = [
-    { label: 'Inicio', icon: Home, href: '/' },
-    { label: 'Registro de Atención', icon: FileText, href: '/registro-de-atencion' },
-    { label: 'Analíticas', icon: BarChart, href: '/analiticas' },
+    { label: "Inicio", icon: Home, href: "/" },
+    {
+      label: "Registro de Atención",
+      icon: FileText,
+      href: "/registro-de-atencion",
+    },
+    { label: "Analíticas", icon: BarChart, href: "/analiticas" },
   ];
 
   const otherMenuItems = [
-    { label: 'Configuración', icon: Settings, href: '/settings' },
+    { label: "Configuración", icon: Settings, href: "/settings" },
   ];
 
   const handleItemClick = (item: string) => {
@@ -46,15 +45,19 @@ const Sidebar: React.FC = () => {
           <Link key={item.label} href={item.href}>
             <div
               onClick={() => handleItemClick(item.label)}
-              className={`flex items-center py-3 px-4 rounded-xl mb-2 transition-all duration-200 ${activeItem === item.label
-                  ? 'bg-indigo-50 text-indigo-600 shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-50 hover:scale-[1.02]'
-                }`}
+              className={`flex items-center py-3 px-4 rounded-xl mb-2 transition-all duration-200 ${
+                activeItem === item.label
+                  ? "bg-indigo-50 text-indigo-600 shadow-sm"
+                  : "text-gray-600 hover:bg-gray-50 hover:scale-[1.02]"
+              }`}
             >
-              <item.icon className={`mr-3 h-5 w-5 ${activeItem === item.label
-                  ? 'text-indigo-600'
-                  : 'text-gray-400'
-                }`} />
+              <item.icon
+                className={`mr-3 h-5 w-5 ${
+                  activeItem === item.label
+                    ? "text-indigo-600"
+                    : "text-gray-400"
+                }`}
+              />
               {item.label}
             </div>
           </Link>
@@ -66,10 +69,11 @@ const Sidebar: React.FC = () => {
           <Link key={item.label} href={item.href}>
             <div
               onClick={() => handleItemClick(item.label)}
-              className={`flex items-center py-3 px-4 rounded-xl transition-all duration-200 ${activeItem === item.label
-                  ? 'bg-gray-50 text-gray-800'
-                  : 'text-gray-600 hover:bg-gray-50 hover:scale-[1.02]'
-                }`}
+              className={`flex items-center py-3 px-4 rounded-xl transition-all duration-200 ${
+                activeItem === item.label
+                  ? "bg-gray-50 text-gray-800"
+                  : "text-gray-600 hover:bg-gray-50 hover:scale-[1.02]"
+              }`}
             >
               <item.icon className="mr-3 h-5 w-5 text-gray-400" />
               {item.label}
