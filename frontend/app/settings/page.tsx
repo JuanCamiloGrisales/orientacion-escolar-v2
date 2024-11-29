@@ -1,18 +1,12 @@
 "use client";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { AlertTriangle, Download, Upload } from "lucide-react";
 import { useRef, useState } from "react";
-import { refreshAutocompleteData } from "../registro-de-atencion/AutocompleteContext";
+import { refreshAutocompleteData } from "../registro-de-atencion/context/AutocompleteContext";
+import ApiKeyInput from "./components/ApiKeyInput";
+import BackupManagement from "./components/BackupManagement";
+import Header from "./components/Header";
+import RestoreAlertDialog from "./components/RestoreAlertDialog";
+import StudentsUpload from "./components/StudentsUpload";
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -144,109 +138,37 @@ export default function SettingsPage() {
     }
   };
 
+  const handleApiKeySave = (apiKey: string) => {
+    localStorage.setItem("geminiApiKey", apiKey);
+    toast({
+      title: "¡API Key guardada!",
+      description: "Tu API Key de Gemini AI ha sido guardada correctamente.",
+      variant: "default",
+    });
+  };
+
   return (
     <main className="flex-1 p-8 flex flex-col bg-gray-50/50">
-      <header className="w-full mb-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Configuración</h1>
-      </header>
-
+      <Header />
       <div className="grid gap-8 grid-cols-1 lg:grid-cols-2">
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            Actualizar lista de alumnos
-          </h2>
-          <button
-            onClick={() => studentsInputRef.current?.click()}
-            className="w-full border-2 border-dashed border-indigo-200 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors cursor-pointer"
-            disabled={isUploading}
-          >
-            <Upload className="mx-auto h-12 w-12 text-indigo-400 mb-4" />
-            <p className="text-gray-600">
-              {isUploading
-                ? "Subiendo archivo..."
-                : "Haz clic para seleccionar el archivo SIMAT (.xlsx)"}
-            </p>
-            <input
-              ref={studentsInputRef}
-              type="file"
-              accept=".xlsx"
-              onChange={handleStudentsUpload}
-              className="hidden"
-            />
-          </button>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            Gestión de Copias de Seguridad
-          </h2>
-          <div className="grid gap-4">
-            <button
-              onClick={handleDownloadBackup}
-              className="border-2 border-indigo-100 rounded-xl p-6 cursor-pointer hover:bg-indigo-50 transition-all flex items-center gap-4"
-            >
-              <Download className="h-8 w-8 text-indigo-400" />
-              <div>
-                <h3 className="font-medium text-gray-800 text-left">
-                  Descargar copia de seguridad
-                </h3>
-                <p className="text-sm text-gray-500 text-left">
-                  Guarda una copia de todos tus datos
-                </p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => backupInputRef.current?.click()}
-              className="border-2 border-dashed border-indigo-200 rounded-xl p-6 cursor-pointer hover:border-indigo-400 transition-all flex items-center gap-4"
-            >
-              <Upload className="h-8 w-8 text-indigo-400" />
-              <div>
-                <h3 className="font-medium text-gray-800 text-left">
-                  Restaurar copia de seguridad
-                </h3>
-                <p className="text-sm text-gray-500 text-left">
-                  Selecciona el archivo .zip
-                </p>
-                <input
-                  ref={backupInputRef}
-                  type="file"
-                  accept=".zip"
-                  onChange={handleBackupSelect}
-                  className="hidden"
-                />
-              </div>
-            </button>
-          </div>
-        </div>
+        <StudentsUpload
+          studentsInputRef={studentsInputRef}
+          isUploading={isUploading}
+          handleStudentsUpload={handleStudentsUpload}
+        />
+        <BackupManagement
+          backupInputRef={backupInputRef}
+          handleBackupSelect={handleBackupSelect}
+          handleDownloadBackup={handleDownloadBackup}
+        />
+        <ApiKeyInput handleApiKeySave={handleApiKeySave} />
       </div>
-
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-500" />
-              Advertencia: Restauración de Base de Datos
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción eliminará todos los datos actuales y los reemplazará
-              con los del archivo de respaldo. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={countdownValue > 0}
-              onClick={handleRestore}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              {countdownValue > 0
-                ? `Continuar (${countdownValue})`
-                : "Continuar"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RestoreAlertDialog
+        isAlertOpen={isAlertOpen}
+        setIsAlertOpen={setIsAlertOpen}
+        countdownValue={countdownValue}
+        handleRestore={handleRestore}
+      />
     </main>
   );
 }

@@ -5,9 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
-import { AutocompleteProvider, useAutocomplete } from "./AutocompleteContext";
-import { FormFillProvider, useFormFillContext } from "./FormFillContext";
 import FormTabs from "./components/FormTabs";
+import { LoadingModal } from "./components/LoadingModal";
 import AdditionalSection from "./components/form-sections/AdditionalSection";
 import AgreementsSection from "./components/form-sections/AgreementsSection";
 import AppreciationSection from "./components/form-sections/AppreciationSection";
@@ -15,6 +14,9 @@ import FamilySection from "./components/form-sections/FamilySection";
 import GeneralSection from "./components/form-sections/GeneralSection";
 import RisksSection from "./components/form-sections/RisksSection";
 import StudentSection from "./components/form-sections/StudentSection";
+import { AutocompleteProvider, useAutocomplete } from "./context/AutocompleteContext";
+import { FormFillProvider, useFormFillContext } from "./context/FormFillContext";
+import { generateSummary } from "./utils/aiService";
 
 type FormData = Record<string, Record<string, any>>;
 
@@ -36,6 +38,38 @@ function RegistroFormContent() {
   const [error, setError] = useState<string | null>(null);
   const [studentsData, setStudentsData] = useState<Record<string, any>>({});
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingStages, setLoadingStages] = useState([
+    {
+      title: "Preparando el registro",
+      description: "Organizando la información ingresada...",
+      isActive: false,
+      isCompleted: false,
+    },
+    {
+      title: "Generando resumen con IA",
+      description: "Procesando el relato del estudiante...",
+      isActive: false,
+      isCompleted: false,
+    },
+    {
+      title: "Guardando registro",
+      description: "Almacenando toda la información...",
+      isActive: false,
+      isCompleted: false,
+    },
+  ]);
+
+  const updateLoadingStage = (index: number, isActive: boolean, isCompleted: boolean) => {
+    setLoadingStages((prev) =>
+      prev.map((stage, i) => {
+        if (i === index) {
+          return { ...stage, isActive, isCompleted };
+        }
+        return stage;
+      })
+    );
+  };
 
   useEffect(() => {
     if (autocompleteData && !formData) {
@@ -239,14 +273,29 @@ function RegistroFormContent() {
     if (!formData?.student.nombreCompleto) {
       toast({
         title: "Campo requerido",
-        description: "El nombre completo  del estudiante es obligatorio.",
+        description: "El nombre completo del estudiante es obligatorio.",
         variant: "destructive",
       });
       return;
     }
 
+    setIsSubmitting(true);
+    updateLoadingStage(0, true, false);
+
     try {
+      // Preparar datos
       const formDataObj = new FormData();
+      updateLoadingStage(0, false, true);
+      updateLoadingStage(1, true, false);
+
+      // Generar resumen con IA
+      const summary = await generateSummary(formData.risks.relatoEntrevistado);
+      if (!summary) {
+        setIsSubmitting(false);
+        return;
+      }
+      updateLoadingStage(1, false, true);
+      updateLoadingStage(2, true, false);
 
       // Flatten the form data structure and convert to camelCase
       const flattenedData = {
@@ -301,9 +350,10 @@ function RegistroFormContent() {
         condicionDiscapacidad: formData.risks.condicionDiscapacidad,
         tipoDiscapacidad: formData.risks.tipoDiscapacidad,
         talentoYCapacidadesExepcionales: formData.risks.talentoCapacidades,
-        relatoEntrevistado: formData.risks.relatoEntrevistado,
 
         // Appreciation section
+        relatoEntrevistado: formData.risks.relatoEntrevistado,
+        resumen: summary,
         observaciones: formData.appreciation.observaciones,
         activacionRuta: formData.appreciation.activacionRuta,
         procesosConvivencia: formData.appreciation.procesosConvivencia,
@@ -314,7 +364,6 @@ function RegistroFormContent() {
         nombreOrientadora: formData.additional.nombreQuienRealiza,
       };
 
-      // Append the flattened JSON data
       formDataObj.append("json_data", JSON.stringify(flattenedData));
 
       // Append files
@@ -346,17 +395,12 @@ function RegistroFormContent() {
       );
 
       if (response.status === 201) {
-        // Clear form data
+        updateLoadingStage(2, false, true);
+
+        // Short delay for visual feedback
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         setFormData(null);
-
-        // Show success toast
-        toast({
-          title: "Registro creado exitosamente",
-          description: "El registro ha sido creado correctamente.",
-          variant: "default",
-        });
-
-        // Redirect to student detail view
         const studentName = formData.student.nombreCompleto;
         router.push(`/student/${studentName}`);
       }
@@ -368,6 +412,8 @@ function RegistroFormContent() {
         description: "Error al enviar el formulario.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -442,7 +488,8 @@ function RegistroFormContent() {
 
   return (
     <div className="mx-auto px-8">
-      <div className="max-h-screen overflow-y-auto">
+      {isSubmitting && <LoadingModal stages={loadingStages} />}
+      <div className={`max-h-screen overflow-y-auto ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
           {/* Header with gradient */}
           <div className="mb-8 my-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">

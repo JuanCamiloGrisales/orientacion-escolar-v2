@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
-import { FormFillContextType } from "./types";
-import { useFormFill } from "./useFormFill";
+import { FormFillContextType } from "../types/types";
+import { useFormFill } from "../hooks/useFormFill";
 
 const FormFillContext = createContext<FormFillContextType | undefined>(
   undefined,

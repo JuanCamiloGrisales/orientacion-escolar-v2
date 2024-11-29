@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import FormField from "../../FormField";
+import FormField from "../FormField";
 
 const AppreciationSection = ({ formData, handleChange, memoizedOptions }) => (
   <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
@@ -9,6 +9,14 @@ const AppreciationSection = ({ formData, handleChange, memoizedOptions }) => (
       </CardTitle>
     </CardHeader>
     <CardContent className="space-y-6">
+      <FormField
+        section="risks"
+        field="relatoEntrevistado"
+        type="richtext"
+        value={formData.risks.relatoEntrevistado}
+        onChange={handleChange}
+        label="Relato del Entrevistado"
+      />
       <FormField
         section="appreciation"
         field="observaciones"

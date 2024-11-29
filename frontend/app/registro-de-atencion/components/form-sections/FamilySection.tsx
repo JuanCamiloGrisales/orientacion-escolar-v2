@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import FormField from "../../FormField";
+import FormField from "../FormField";
 
 const FamilySection = ({ formData, handleChange, memoizedOptions }) => (
   <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">

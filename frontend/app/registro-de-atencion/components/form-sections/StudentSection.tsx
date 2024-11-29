@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import FormField from "../../FormField";
+import FormField from "../FormField";
 
 const StudentSection = ({
   formData,

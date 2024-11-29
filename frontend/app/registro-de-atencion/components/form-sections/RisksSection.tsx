@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import FormField from "../../FormField";
+import FormField from "../FormField";
 
 const RisksSection = ({ formData, handleChange, memoizedOptions }) => (
   <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
@@ -34,14 +34,6 @@ const RisksSection = ({ formData, handleChange, memoizedOptions }) => (
         onChange={handleChange}
         label="Talento y/o Capacidades Excepcionales"
         options={memoizedOptions.talentoYCapacidadesExepcionales}
-      />
-      <FormField
-        section="risks"
-        field="relatoEntrevistado"
-        type="richtext"
-        value={formData.risks.relatoEntrevistado}
-        onChange={handleChange}
-        label="Relato del Entrevistado"
       />
     </CardContent>
   </Card>
