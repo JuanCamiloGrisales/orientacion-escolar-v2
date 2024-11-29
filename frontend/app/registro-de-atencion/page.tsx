@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import { ConfirmationModal } from "./components/ConfirmationModal";
 import FormTabs from "./components/FormTabs";
 import { LoadingModal } from "./components/LoadingModal";
 import AdditionalSection from "./components/form-sections/AdditionalSection";
@@ -59,6 +60,7 @@ function RegistroFormContent() {
       isCompleted: false,
     },
   ]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const updateLoadingStage = (index: number, isActive: boolean, isCompleted: boolean) => {
     setLoadingStages((prev) =>
@@ -470,6 +472,14 @@ function RegistroFormContent() {
     fillFormWithData(jsonData);
   };
 
+  const handleCancelClick = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmReset = () => {
+    window.location.reload();
+  };
+
   if (error) {
     return (
       <div className="container mx-auto p-6 text-red-500">Error: {error}</div>
@@ -489,6 +499,11 @@ function RegistroFormContent() {
   return (
     <div className="mx-auto px-8">
       {isSubmitting && <LoadingModal stages={loadingStages} />}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmReset}
+      />
       <div className={`max-h-screen overflow-y-auto ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
           {/* Header with gradient */}
@@ -566,6 +581,7 @@ function RegistroFormContent() {
             <Button
               type="button"
               variant="outline"
+              onClick={handleCancelClick}
               className="border-2 rounded-lg border-indigo-100 hover:border-indigo-200 transition-all duration-200 px-8 py-4 text-lg"
             >
               Cancelar
