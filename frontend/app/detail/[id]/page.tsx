@@ -7,7 +7,7 @@ import type { Registro } from "@/types/registro";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Download, FileText } from "lucide-react";
+import { ArrowLeft, Download, Edit, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -255,6 +255,10 @@ export default function DetailPage({
     fetchRegistro();
   }, [resolvedParams.id]);
 
+  const handleEditClick = () => {
+    router.push(`/registro-de-atencion?edit=${resolvedParams.id}`);
+  };
+
   if (loading)
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -297,6 +301,14 @@ export default function DetailPage({
                   },
                 )}
               </p>
+              <Button
+                variant="secondary"
+                onClick={handleEditClick}
+                className="w-full mt-4 text-white bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar Registro
+              </Button>
             </div>
           </div>
         </div>

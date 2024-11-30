@@ -20,8 +20,6 @@ class RegistroViewSet(viewsets.ModelViewSet):
             # Parse JSON data
             json_data = json.loads(request.data.get("json_data", "{}"))
 
-            print(json_data)
-
             # Create Registro instance
             serializer = self.get_serializer(data=json_data)
             serializer.is_valid(raise_exception=True)
@@ -47,6 +45,14 @@ class RegistroViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        if "json_data" in request.data:
+            request.data._mutable = True
+            request.data.update(json.loads(request.data["json_data"]))
+            request.data._mutable = False
+
+            return super().update(request, *args, **kwargs)
 
     @action(detail=False, methods=["get"], url_path="latest-per-alumno")
     def latest_per_alumno(self, request):

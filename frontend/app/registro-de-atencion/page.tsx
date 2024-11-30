@@ -17,6 +17,7 @@ import RisksSection from "./components/form-sections/RisksSection";
 import StudentSection from "./components/form-sections/StudentSection";
 import { AutocompleteProvider, useAutocomplete } from "./context/AutocompleteContext";
 import { FormFillProvider, useFormFillContext } from "./context/FormFillContext";
+import { formFillService } from "./hooks/useFormFill";
 import { generateSummary } from "./utils/aiService";
 
 type FormData = Record<string, Record<string, any>>;
@@ -269,6 +270,36 @@ function RegistroFormContent() {
     }
   };
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const editId = searchParams.get('edit');
+
+  useEffect(() => {
+    const fetchRecordForEdit = async () => {
+      if (editId) {
+        try {
+          const response = await fetch(`http://127.0.0.1:8000/api/registros/${editId}/`);
+          if (!response.ok) throw new Error('Failed to fetch record');
+          const jsonFromBackend = await response.json();
+
+          // Llamar a fillFormWithData y actualizar el estado del formulario
+          if (autocompleteData) {
+            const transformedData = formFillService.fillForm(jsonFromBackend);
+            setFormData(transformedData);
+          }
+        } catch (error) {
+          console.error('Error fetching record:', error);
+          toast({
+            title: "Error",
+            description: "No se pudo cargar el registro para editar.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    fetchRecordForEdit();
+  }, [editId, autocompleteData]); // Agregar autocompleteData como dependencia
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -386,17 +417,22 @@ function RegistroFormContent() {
         formData.additional.compromisoEstudiantes,
       );
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/registros/",
-        formDataObj,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
+      const url = editId
+        ? `http://127.0.0.1:8000/api/registros/${editId}/`
+        : "http://127.0.0.1:8000/api/registros/";
 
-      if (response.status === 201) {
+      const method = editId ? 'PUT' : 'POST';
+
+      const response = await axios({
+        method,
+        url,
+        data: formDataObj,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
         updateLoadingStage(2, false, true);
 
         // Short delay for visual feedback

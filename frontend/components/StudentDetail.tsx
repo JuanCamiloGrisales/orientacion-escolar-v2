@@ -70,6 +70,10 @@ export default function StudentDetail() {
     router.push(`/detail/${id}`);
   };
 
+  const handleEditClick = (id: number) => {
+    router.push(`/registro-de-atencion?edit=${id}`);
+  };
+
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -126,7 +130,7 @@ export default function StudentDetail() {
               </Card>
             </ContextMenuTrigger>
             <ContextMenuContent className="w-64">
-              <ContextMenuItem>
+              <ContextMenuItem onClick={() => handleEditClick(record.id)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 <span>Editar</span>
               </ContextMenuItem>

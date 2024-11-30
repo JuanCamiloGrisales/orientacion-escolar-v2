@@ -1,32 +1,21 @@
-import React, { createContext, useContext, useState } from "react";
-import { FormFillContextType } from "../types/types";
-import { useFormFill } from "../hooks/useFormFill";
+import { createContext, useContext, useState } from 'react';
+import { useFormFill } from '../hooks/useFormFill';
 
-const FormFillContext = createContext<FormFillContextType | undefined>(
-  undefined,
-);
+const FormFillContext = createContext<ReturnType<typeof useFormFill> | undefined>(undefined);
 
-export function FormFillProvider({ children }: { children: React.ReactNode }) {
-  const [isFillingForm, setIsFillingForm] = useState(false);
-  const { fillFormWithData: fillForm } = useFormFill();
-
-  const fillFormWithData = (data: any) => {
-    setIsFillingForm(true);
-    fillForm(data);
-    setIsFillingForm(false);
-  };
-
+export function FormFillProvider({ children }) {
+  const formFillUtils = useFormFill();
   return (
-    <FormFillContext.Provider value={{ fillFormWithData, isFillingForm }}>
+    <FormFillContext.Provider value={formFillUtils}>
       {children}
     </FormFillContext.Provider>
   );
 }
 
-export const useFormFillContext = () => {
+export function useFormFillContext() {
   const context = useContext(FormFillContext);
-  if (!context) {
-    throw new Error("useFormFillContext must be used within FormFillProvider");
+  if (context === undefined) {
+    throw new Error('useFormFillContext must be used within a FormFillProvider');
   }
   return context;
-};
+}
