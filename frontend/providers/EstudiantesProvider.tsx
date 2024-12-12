@@ -1,12 +1,12 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Registro } from "../types/registro";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { EstudiantesContext } from "../contexts/EstudiantesContext";
+import { Estudiante } from "../types/Estudiante";
 
 export const EstudiantesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [estudiantes, setEstudiantes] = useState<Registro[]>([]);
+  const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +15,7 @@ export const EstudiantesProvider: React.FC<{ children: React.ReactNode }> = ({
     setError(null);
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/registros/latest-per-alumno/",
+        "http://127.0.0.1:8000/api/estudiantes/",
       );
       setEstudiantes(response.data);
     } catch (e: any) {

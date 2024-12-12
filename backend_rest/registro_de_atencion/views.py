@@ -1,13 +1,18 @@
 import json
 
-from django.db.models import Max
 from django.http import FileResponse, Http404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Archivo, Registro
-from .serializers import ArchivoSerializer, RegistroLatestSerializer, RegistroSerializer, RegistroSummarySerializer
+from .models import Archivo, Estudiante, Registro
+from .serializers import (
+    ArchivoSerializer,
+    EstudiantePreviewSerializer,
+    EstudianteSerializer,
+    RegistroSerializer,
+    RegistroSummarySerializer,
+)
 
 
 class RegistroViewSet(viewsets.ModelViewSet):
@@ -17,30 +22,21 @@ class RegistroViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            # Parse JSON data
-            json_data = json.loads(request.data.get("json_data", "{}"))
-
-            # Create Registro instance
-            serializer = self.get_serializer(data=json_data)
+            # Crear el registro
+            serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             registro = serializer.save()
 
-            # Map frontend field names to model field names
-            file_fields_map = {
-                "acuerdos_previos": "acuerdosPrevios",
-                "remision": "remision",
-                "piar": "piar",
-                "compromiso_padres": "compromisoPadres",
-                "compromiso_estudiantes": "compromisoEstudiantes",
+            # Procesar los archivos
+            file_fields = {
+                "acuerdosPrevios": request.FILES.getlist("acuerdosPrevios", []),
+                "remision": request.FILES.getlist("remision", []),
             }
 
-            # Process files
-            for frontend_field, model_field in file_fields_map.items():
-                if frontend_field in request.FILES:
-                    files = request.FILES.getlist(frontend_field)
-                    for file in files:
-                        archivo = Archivo.objects.create(archivo=file)
-                        getattr(registro, model_field).add(archivo)
+            for field_name, files in file_fields.items():
+                for file in files:
+                    archivo = Archivo.objects.create(archivo=file)
+                    getattr(registro, field_name).add(archivo)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
@@ -51,24 +47,11 @@ class RegistroViewSet(viewsets.ModelViewSet):
             request.data._mutable = True
             request.data.update(json.loads(request.data["json_data"]))
             request.data._mutable = False
+        return super().update(request, *args, **kwargs)
 
-            return super().update(request, *args, **kwargs)
-
-    @action(detail=False, methods=["get"], url_path="latest-per-alumno")
-    def latest_per_alumno(self, request):
-        latest_registros = Registro.objects.filter(
-            id__in=Registro.objects.values("nombreEstudiante").annotate(latest_id=Max("id")).values("latest_id")
-        )
-        serializer = RegistroLatestSerializer(latest_registros, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=["get"], url_path="all-registros-by-alumno")
-    def all_registros_by_alumno(self, request):
-        nombre_estudiante = request.query_params.get("nombreEstudiante")
-        if not nombre_estudiante:
-            return Response({"error": "nombreEstudiante parameter is required"}, status=400)
-
-        registros = Registro.objects.filter(nombreEstudiante=nombre_estudiante)
+    @action(detail=True, methods=["get"], url_path="all-registros-by-alumno")
+    def all_registros_by_alumno(self, request, pk=None):
+        registros = Registro.objects.filter(estudiante_id=pk)
         serializer = RegistroSummarySerializer(registros, many=True)
         return Response(serializer.data)
 
@@ -85,3 +68,44 @@ class ArchivoViewSet(viewsets.ReadOnlyModelViewSet):
             return FileResponse(archivo.archivo.open(), as_attachment=True, filename=archivo.archivo.name)
         except Archivo.DoesNotExist:
             raise Http404
+
+
+class EstudianteViewSet(viewsets.ModelViewSet):
+    queryset = Estudiante.objects.all()
+    serializer_class = EstudianteSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            # Crear el estudiante
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            estudiante = serializer.save()
+
+            # Procesar los archivos
+            file_fields = {
+                "piar": request.FILES.getlist("piar", []),
+                "compromisoPadres": request.FILES.getlist("compromisoPadres", []),
+                "compromisoEstudiantes": request.FILES.getlist("compromisoEstudiantes", []),
+            }
+
+            for field_name, files in file_fields.items():
+                for file in files:
+                    archivo = Archivo.objects.create(archivo=file)
+                    getattr(estudiante, field_name).add(archivo)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EstudiantePreviewViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Estudiante.objects.all()
+    serializer_class = EstudiantePreviewSerializer
+    permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=["get"], url_path="preview")
+    def preview(self, request):
+        estudiantes = self.get_queryset()
+        serializer = self.get_serializer(estudiantes, many=True)
+        return Response(serializer.data)

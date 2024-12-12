@@ -15,7 +15,7 @@ import { es } from "date-fns/locale";
 import { File, Pencil, Plus, Printer, Stars } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Registro } from "@/types/registro";
+import type { Registro } from "@/types/Registro";
 
 interface StudentRecord
   extends Pick<

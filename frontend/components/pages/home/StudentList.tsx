@@ -1,12 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -15,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEstudiantes } from "@/lib/StudentsContext";
-import { Download, Edit3, Filter, MoreVertical, Trash2 } from "lucide-react";
+import { Download, Filter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import FilterModal, { Filters } from "./FilterModal";
@@ -52,7 +46,6 @@ const StudentList: React.FC<StudentListProps> = ({
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const itemsPerPage = 5;
 
-  // Añadir efecto para contar filtros activos
   useEffect(() => {
     let count = 0;
     if (appliedFilters.gradoEscolaridad.length > 0) count++;
@@ -79,20 +72,16 @@ const StudentList: React.FC<StudentListProps> = ({
 
   const matchesSearch = (studentName: string, search: string): boolean => {
     if (!search) return true;
-
     const normalizedName = studentName
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .trim();
-
     const normalizedSearch = search
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .trim();
-
-    // Comprueba si todos los caracteres de búsqueda están en el nombre
     return normalizedSearch
       .split("")
       .every((char) => normalizedName.includes(char));
@@ -100,32 +89,26 @@ const StudentList: React.FC<StudentListProps> = ({
 
   const calculateMatchScore = (studentName: string, search: string): number => {
     if (!search) return 1;
-
     const normalizedName = studentName
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .trim();
-
     const normalizedSearch = search
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .trim();
-
     let score = 0;
     let consecutiveMatches = 0;
     let lastMatchIndex = -1;
-
-    // Busca caracteres consecutivos
     for (let i = 0; i < normalizedSearch.length; i++) {
       const char = normalizedSearch[i];
       const index = normalizedName.indexOf(char, lastMatchIndex + 1);
-
       if (index !== -1) {
         if (index === lastMatchIndex + 1) {
           consecutiveMatches++;
-          score += consecutiveMatches * 2; // Bonus por caracteres consecutivos
+          score += consecutiveMatches * 2;
         } else {
           consecutiveMatches = 0;
           score += 1;
@@ -133,12 +116,9 @@ const StudentList: React.FC<StudentListProps> = ({
         lastMatchIndex = index;
       }
     }
-
-    // Bonus si los caracteres están en el mismo orden
     if (normalizedName.includes(normalizedSearch)) {
       score += 10;
     }
-
     return score;
   };
 
@@ -146,12 +126,10 @@ const StudentList: React.FC<StudentListProps> = ({
     .filter((student) => {
       const searchMatch = matchesSearch(student.nombreEstudiante, searchTerm);
       const tabMatch =
-        selectedTab === "General" || student.lineaDeAtencion === selectedTab; // Filter by tab
-
+        selectedTab === "General" || student.lineaDeAtencion === selectedTab;
       const gradoMatch =
         appliedFilters.gradoEscolaridad.length === 0 ||
         appliedFilters.gradoEscolaridad.includes(student.gradoEscolaridad);
-
       let fechaMatch = true;
       if (
         appliedFilters.fechaProximoSeguimiento.from &&
@@ -162,7 +140,6 @@ const StudentList: React.FC<StudentListProps> = ({
           fecha >= appliedFilters.fechaProximoSeguimiento.from &&
           fecha <= appliedFilters.fechaProximoSeguimiento.to;
       }
-
       return searchMatch && tabMatch && gradoMatch && fechaMatch;
     })
     .map((student) => ({
@@ -231,12 +208,12 @@ const StudentList: React.FC<StudentListProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead>Nombre</TableHead>
-            <TableHead>Próxima Atención</TableHead>
             <TableHead>Grado</TableHead>
-            <TableHead>Motivos de atención</TableHead>
-            <TableHead>Tipo de Atención</TableHead>
+            <TableHead>EPS</TableHead>
+            <TableHead>Teléfono Acudiente</TableHead>
+            <TableHead>Teléfono Estudiante</TableHead>
             <TableHead>Estado del Caso</TableHead>
-            <TableHead>Acciones</TableHead>
+            <TableHead>Próxima Atención</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -260,22 +237,10 @@ const StudentList: React.FC<StudentListProps> = ({
                   {student.nombreEstudiante}
                 </div>
               </TableCell>
-              <TableCell>
-                {student.fechaProximoSeguimiento
-                  ? new Date(student.fechaProximoSeguimiento)
-                      .toLocaleDateString("es-ES", {
-                        month: "long",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true,
-                      })
-                      .replace(",", "")
-                  : ""}
-              </TableCell>
               <TableCell>{student.gradoEscolaridad}</TableCell>
-              <TableCell>{student.posiblesMotivosDeAtencion}</TableCell>
-              <TableCell>{student.tipoDeAtencion}</TableCell>
+              <TableCell>{student.epsEstudiante}</TableCell>
+              <TableCell>{student.telefonoAcudiente}</TableCell>
+              <TableCell>{student.numeroTelefonoEstudiante}</TableCell>
               <TableCell>
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[student.estadoCaso as keyof typeof statusColors] || "bg-gray-500"} text-white`}
@@ -284,26 +249,17 @@ const StudentList: React.FC<StudentListProps> = ({
                 </span>
               </TableCell>
               <TableCell>
-                <div className="flex space-x-2">
-                  <Button variant="ghost" size="icon">
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View details</DropdownMenuItem>
-                      <DropdownMenuItem>Update status</DropdownMenuItem>
-                      <DropdownMenuItem>Print record</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {student.fechaProximoSeguimiento
+                  ? new Date(student.fechaProximoSeguimiento)
+                    .toLocaleDateString("es-ES", {
+                      month: "long",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                      hour12: true,
+                    })
+                    .replace(",", "")
+                  : ""}
               </TableCell>
             </TableRow>
           ))}

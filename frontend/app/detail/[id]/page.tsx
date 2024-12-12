@@ -1,9 +1,11 @@
 "use client";
 
+// Update imports to include PDFViewer
+import { PDFViewer } from "@/components/PDFViewer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Registro } from "@/types/registro";
+import type { Registro } from "@/types/Registro";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { AnimatePresence, motion } from "framer-motion";
@@ -45,27 +47,7 @@ const TextSection = ({
   </div>
 );
 
-// Add new PDFViewer component at the top level
-const PDFViewer = ({ url, onClose }: { url: string; onClose: () => void }) => {
-  return (
-    <motion.div
-      initial={{ x: "-100%" }}
-      animate={{ x: 0 }}
-      exit={{ x: "-100%" }}
-      transition={{ type: "spring", damping: 20 }}
-      className="fixed left-0 top-0 h-screen bg-white z-50 w-full max-w-3xl shadow-2xl"
-    >
-      <div className="absolute top-4 -right-14 z-10">
-        <Button variant="secondary" size="icon" onClick={onClose}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-      </div>
-      <iframe src={url} className="w-full h-full" />
-    </motion.div>
-  );
-};
-
-// Update FileSection with modern styling
+// Update FileSection component
 const FileSection = ({
   label,
   files,
@@ -110,7 +92,6 @@ const FileSection = ({
             url={pdfUrl}
             onClose={() => {
               setPdfUrl(null);
-              // Cleanup URL when closing
               if (pdfUrl) window.URL.revokeObjectURL(pdfUrl);
             }}
           />
@@ -150,6 +131,7 @@ const FileSection = ({
   );
 };
 
+// Update SimpleFileSection component
 const SimpleFileSection = ({
   title,
   files,
