@@ -15,7 +15,7 @@ export const EstudiantesProvider: React.FC<{ children: React.ReactNode }> = ({
     setError(null);
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/estudiantes/",
+        "http://127.0.0.1:8000/api/estudiante-preview/",
       );
       setEstudiantes(response.data);
     } catch (e: any) {

@@ -38,6 +38,7 @@ const StudentList: React.FC<StudentListProps> = ({
   selectedTab,
 }) => {
   const { estudiantes, loading, error } = useEstudiantes();
+  console.log(estudiantes);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -217,9 +218,9 @@ const StudentList: React.FC<StudentListProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentStudents.map((student) => (
+          {currentStudents.map((student, index) => (
             <TableRow
-              key={student.id}
+              key={index}
               onClick={() => handleStudentClick(student.nombreEstudiante)}
               className="cursor-pointer"
             >
@@ -238,7 +239,7 @@ const StudentList: React.FC<StudentListProps> = ({
                 </div>
               </TableCell>
               <TableCell>{student.gradoEscolaridad}</TableCell>
-              <TableCell>{student.epsEstudiante}</TableCell>
+              <TableCell>{student.entidadPrestadoraDeSalud}</TableCell>
               <TableCell>{student.telefonoAcudiente}</TableCell>
               <TableCell>{student.numeroTelefonoEstudiante}</TableCell>
               <TableCell>

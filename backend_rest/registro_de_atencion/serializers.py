@@ -49,7 +49,7 @@ class EstudiantePreviewSerializer(serializers.ModelSerializer):
         fields = [
             "nombreEstudiante",
             "gradoEscolaridad",
-            "epsEstudiante",
+            "entidadPrestadoraDeSalud",
             "telefonoAcudiente",
             "numeroTelefonoEstudiante",
             "estadoCaso",
