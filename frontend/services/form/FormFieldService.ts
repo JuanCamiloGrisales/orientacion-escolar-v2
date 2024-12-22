@@ -12,11 +12,11 @@ export class FormFieldService {
   static filterOptions(
     options: string[],
     searchTerm?: string,
-    value?: string
+    value?: string,
   ): string[] {
     const searchValue = String(searchTerm || value || "").toLowerCase();
     return options.filter((option) =>
-      String(option).toLowerCase().includes(searchValue)
+      String(option).toLowerCase().includes(searchValue),
     );
   }
 
@@ -44,11 +44,11 @@ export class FormFieldService {
   static useFilteredOptions(
     options: string[],
     searchTerm: string,
-    value: string
+    value: string,
   ) {
     return useMemo(
       () => FormFieldService.filterOptions(options, searchTerm, value),
-      [options, searchTerm, value]
+      [options, searchTerm, value],
     );
   }
 

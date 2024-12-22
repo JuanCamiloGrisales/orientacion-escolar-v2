@@ -38,7 +38,6 @@ const StudentList: React.FC<StudentListProps> = ({
   selectedTab,
 }) => {
   const { estudiantes, loading, error } = useEstudiantes();
-  console.log(estudiantes);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -172,8 +171,8 @@ const StudentList: React.FC<StudentListProps> = ({
     setCurrentPage(page);
   };
 
-  const handleStudentClick = (nombreEstudiante: string) => {
-    router.push(`/student/${nombreEstudiante}`);
+  const handleStudentClick = (id: number) => {
+    router.push(`/student/${id}`);
   };
 
   return (
@@ -221,7 +220,7 @@ const StudentList: React.FC<StudentListProps> = ({
           {currentStudents.map((student, index) => (
             <TableRow
               key={index}
-              onClick={() => handleStudentClick(student.nombreEstudiante)}
+              onClick={() => handleStudentClick(student.id)}
               className="cursor-pointer"
             >
               <TableCell className="font-medium">
@@ -252,14 +251,14 @@ const StudentList: React.FC<StudentListProps> = ({
               <TableCell>
                 {student.fechaProximoSeguimiento
                   ? new Date(student.fechaProximoSeguimiento)
-                    .toLocaleDateString("es-ES", {
-                      month: "long",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "numeric",
-                      hour12: true,
-                    })
-                    .replace(",", "")
+                      .toLocaleDateString("es-ES", {
+                        month: "long",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                      })
+                      .replace(",", "")
                   : ""}
               </TableCell>
             </TableRow>

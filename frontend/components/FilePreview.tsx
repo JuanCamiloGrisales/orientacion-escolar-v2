@@ -23,7 +23,10 @@ export const FilePreview = ({ files, onRemove }: FilePreviewProps) => {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (pdfViewerRef.current && !pdfViewerRef.current.contains(event.target as Node)) {
+    if (
+      pdfViewerRef.current &&
+      !pdfViewerRef.current.contains(event.target as Node)
+    ) {
       URL.revokeObjectURL(selectedPDF!);
       setSelectedPDF(null);
     }

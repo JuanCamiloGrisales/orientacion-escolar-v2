@@ -1,4 +1,5 @@
 export interface FormSection {
+  id: string | number;
   title: string;
   icon: any;
   fields: FormField[];
@@ -7,7 +8,15 @@ export interface FormSection {
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'select' | 'date' | 'tel' | 'number' | 'richtext' | 'file';
+  type:
+    | "text"
+    | "select"
+    | "date"
+    | "datetime"
+    | "tel"
+    | "number"
+    | "richtext"
+    | "file";
   defaultValue?: string;
   options?: string[];
 }

@@ -5,7 +5,6 @@ import { useState } from "react";
 import StudentList from "./StudentList";
 import UpcomingEvents from "./UpcomingEvents";
 
-
 const MainContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("General");
@@ -27,10 +26,7 @@ const MainContent = () => {
     <main className="flex-1 p-8 flex flex-col bg-gray-50/50">
       <header className="w-full mb-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Panel de Control
-          </h1>
-
+          <h1 className="text-2xl font-bold text-gray-800">Panel de Control</h1>
 
           <button
             onClick={() => router.push("/student/create")}
@@ -69,9 +65,10 @@ const MainContent = () => {
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
                 className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-medium
-                  ${tab === selectedTab
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-50"
+                  ${
+                    tab === selectedTab
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
               >
                 {tab}

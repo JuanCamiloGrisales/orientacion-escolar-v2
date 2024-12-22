@@ -11,7 +11,7 @@ export interface Registro {
   lineaDeAtencion: string;
   tipoDeAtencion: string;
   relatoEntrevistado: string;
-  espectativasEntrevistado: string;
+  expectativasEntrevistado: string;
   acuerdosPrevios: Archivo[];
   observaciones: string;
   activacionRuta: string;

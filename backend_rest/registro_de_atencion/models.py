@@ -4,13 +4,13 @@ from django.utils.text import slugify
 
 
 class Archivo(models.Model):
-    """Model definition for Archivo."""
+    """
+    Model definition for Archivo.
+    """
 
     archivo = models.FileField(upload_to="archivos/")
 
     class Meta:
-        """Meta definition for Archivo."""
-
         verbose_name = "Archivo"
         verbose_name_plural = "Archivos"
 
@@ -19,9 +19,10 @@ class Archivo(models.Model):
 
 
 class Estudiante(models.Model):
-    """Model definition for Estudiante."""
+    """
+    Model definition for Estudiante.
+    """
 
-    # Información personal
     nombreEstudiante = models.CharField(max_length=500, unique=True)
     tipoDocumentoEstudiante = models.CharField(max_length=500, blank=True, default="no establecido")
     numeroDocumentoEstudiante = models.CharField(max_length=500, blank=True, default="no establecido")
@@ -35,20 +36,14 @@ class Estudiante(models.Model):
     lugarNacimientoEstudiante = models.CharField(max_length=500, blank=True, default="no establecido")
     direccion = models.CharField(max_length=500, blank=True, default="no establecido")
     parentescoAcudiente = models.CharField(max_length=500, blank=True, default="no establecido")
-
-    # Información general
     municipio = models.CharField(max_length=500, blank=True, default="no establecido")
     institucion = models.CharField(max_length=500, blank=True, default="no establecido")
     dane = models.CharField(max_length=500, blank=True, default="no establecido")
     sede = models.CharField(max_length=500, blank=True, default="no establecido")
-
     entidadPrestadoraDeSalud = models.CharField(max_length=500, blank=True, default="no establecido")
     personaDeConfianza = models.CharField(max_length=500, blank=True, default="no establecido")
-
-    # Acudiente e información familiar
     telefonoAcudiente = models.CharField(max_length=500, blank=True, default="no establecido")
     documentoAcudiente = models.CharField(max_length=500, blank=True, default="no establecido")
-    parentescoAcudiente = models.CharField(max_length=500, blank=True, default="no establecido")
     edadAcudiente = models.CharField(max_length=500, blank=True, default="no establecido")
     ocupacionAcudiente = models.CharField(max_length=500, blank=True, default="no establecido")
     nivelEducativo = models.CharField(max_length=500, blank=True, default="no establecido")
@@ -57,13 +52,9 @@ class Estudiante(models.Model):
     lugarResidencia = models.CharField(max_length=500, blank=True, default="no establecido")
     tipoFamilia = models.CharField(max_length=500, blank=True, default="no establecido")
     hogarYBienestar = models.TextField(blank=True, default="no establecido")
-
-    # Other fields
     condicionDiscapacidad = models.CharField(max_length=500, blank=True, default="no establecido")
     tipoDiscapacidad = models.CharField(max_length=500, blank=True, default="no establecido")
     talentoYCapacidadesExepcionales = models.TextField(blank=True, default="no establecido")
-
-    # Archivos
     piar = models.ManyToManyField(Archivo, related_name="piar", blank=True)
     compromisoPadres = models.ManyToManyField(Archivo, related_name="compromisoPadres", blank=True)
     compromisoEstudiantes = models.ManyToManyField(Archivo, related_name="compromisoEstudiantes", blank=True)
@@ -73,7 +64,9 @@ class Estudiante(models.Model):
 
 
 class Registro(models.Model):
-    """Model definition for Registro."""
+    """
+    Model definition for Registro.
+    """
 
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name="registros")
     consecutivo = models.IntegerField(blank=True)
@@ -83,11 +76,9 @@ class Registro(models.Model):
     posiblesMotivosDeAtencion = models.TextField(blank=True, default="no establecido")
     lineaDeAtencion = models.CharField(max_length=500, blank=True, default="no establecido")
     tipoDeAtencion = models.CharField(max_length=500, blank=True, default="no establecido")
-    # ------------------
     relatoEntrevistado = models.TextField(blank=True, default="no establecido")
-    espectativasEntrevistado = models.TextField(blank=True, default="no establecido")
+    expectativasEntrevistado = models.TextField(blank=True, default="no establecido")
     acuerdosPrevios = models.ManyToManyField(Archivo, related_name="acuerdosPrevios", blank=True)
-    # ------------------
     observaciones = models.TextField(blank=True, default="no establecido")
     activacionRuta = models.CharField(max_length=500, blank=True, default="no establecido")
     procesosConvivencia = models.TextField(blank=True, default="no establecido")
@@ -95,7 +86,6 @@ class Registro(models.Model):
     estadoCaso = models.CharField(max_length=500, blank=True, default="no establecido")
     fechaProximoSeguimiento = models.DateTimeField(null=True, blank=True)
     nombreOrientadora = models.CharField(max_length=500, blank=True, default="no establecido")
-    # ------------------
     created = models.DateTimeField(auto_now_add=True)
     resumen = models.TextField(blank=True)
     slug = models.SlugField(blank=True)
@@ -105,8 +95,6 @@ class Registro(models.Model):
     )
 
     class Meta:
-        """Meta definition for Registro."""
-
         verbose_name = "Registro"
         verbose_name_plural = "Registros"
 
@@ -129,9 +117,10 @@ class Registro(models.Model):
         super(Registro, self).save(*args, **kwargs)
 
     def _create_estudiante_snapshot(self):
-        """Crea una copia de los datos del estudiante al momento del registro"""
+        """
+        Creates a copy of the student's data at the time of registration.
+        """
         if self.estudiante:
-            # Excluir campos que no queremos en el snapshot
             exclude_fields = ["id", "piar", "compromisoPadres", "compromisoEstudiantes", "registros"]
             return model_to_dict(self.estudiante, exclude=exclude_fields)
         return None

@@ -1,7 +1,5 @@
 import StudentDetail from "@/components/StudentDetail";
 
-function StudentDetailPage() {
+export default function StudentPage() {
   return <StudentDetail />;
 }
-
-export default StudentDetailPage;

@@ -1,9 +1,12 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { FormSection as FormSectionType } from "../types";
 import { FormFieldComponent } from "@/components/forms/fields/FormField";
 
-export const FormSection = ({ section, data, onChange }: {
+export const FormSection = ({
+  section,
+  data,
+  onChange,
+}: {
   section: FormSectionType;
   data: any;
   onChange: (field: string, value: any) => void;
@@ -20,7 +23,7 @@ export const FormSection = ({ section, data, onChange }: {
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
-          {section.fields.map(field => (
+          {section.fields.map((field) => (
             <FormFieldComponent
               key={field.name}
               field={field}

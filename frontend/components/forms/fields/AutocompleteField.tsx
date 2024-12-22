@@ -1,16 +1,22 @@
-
 import { Input } from "@/components/ui/input";
 import { useEffect, useRef, useState } from "react";
 import type { AutocompleteFieldProps } from "./types";
 
-export function AutocompleteField({ value, onChange, label, options = [], type = "text", defaultValue }: AutocompleteFieldProps) {
+export function AutocompleteField({
+  value,
+  onChange,
+  label,
+  options = [],
+  type = "text",
+  defaultValue,
+}: AutocompleteFieldProps) {
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
   // Use empty string as fallback for undefined/null values
-  const inputValue = value ?? defaultValue ?? '';
+  const inputValue = value ?? defaultValue ?? "";
 
   useEffect(() => {
     // Only set default value if both value is undefined and defaultValue exists
@@ -19,13 +25,13 @@ export function AutocompleteField({ value, onChange, label, options = [], type =
     }
   }, [defaultValue]); // Only run when defaultValue changes
 
-  const filteredOptions = options.filter(opt =>
-    opt.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOptions = options.filter((opt) =>
+    opt.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!open) {
-      if (e.key === 'ArrowDown') {
+      if (e.key === "ArrowDown") {
         setOpen(true);
         e.preventDefault();
       }
@@ -33,23 +39,25 @@ export function AutocompleteField({ value, onChange, label, options = [], type =
     }
 
     switch (e.key) {
-      case 'ArrowDown':
-        setSelectedIndex(prev => Math.min(prev + 1, filteredOptions.length - 1));
+      case "ArrowDown":
+        setSelectedIndex((prev) =>
+          Math.min(prev + 1, filteredOptions.length - 1),
+        );
         e.preventDefault();
         break;
-      case 'ArrowUp':
-        setSelectedIndex(prev => Math.max(prev - 1, 0));
+      case "ArrowUp":
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
         e.preventDefault();
         break;
-      case 'Enter':
+      case "Enter":
         if (filteredOptions[selectedIndex]) {
           onChange(filteredOptions[selectedIndex]);
-          setSearchTerm('');
+          setSearchTerm("");
           setOpen(false);
         }
         e.preventDefault();
         break;
-      case 'Escape':
+      case "Escape":
         setOpen(false);
         e.preventDefault();
         break;
@@ -62,7 +70,7 @@ export function AutocompleteField({ value, onChange, label, options = [], type =
       const list = listRef.current;
       const selectedItem = list.children[selectedIndex] as HTMLElement;
       if (selectedItem) {
-        selectedItem.scrollIntoView({ block: 'nearest' });
+        selectedItem.scrollIntoView({ block: "nearest" });
       }
     }
   }, [selectedIndex, open]);
@@ -86,10 +94,7 @@ export function AutocompleteField({ value, onChange, label, options = [], type =
       />
       {open && (
         <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOpen(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
             className="absolute z-50 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg 
                       border-2 border-indigo-100"
@@ -97,20 +102,22 @@ export function AutocompleteField({ value, onChange, label, options = [], type =
             <div
               ref={listRef}
               className="overflow-y-auto"
-              style={{ maxHeight: '200px' }}
+              style={{ maxHeight: "200px" }}
             >
               {filteredOptions.map((option, index) => (
                 <button
                   key={index}
                   className={`w-full px-4 py-2 m-1 rounded-full transition-colors text-sm text-left block
-                            ${index === selectedIndex
-                      ? 'bg-indigo-100 text-indigo-900'
-                      : 'bg-indigo-50 hover:bg-indigo-100'}`}
+                            ${
+                              index === selectedIndex
+                                ? "bg-indigo-100 text-indigo-900"
+                                : "bg-indigo-50 hover:bg-indigo-100"
+                            }`}
                   onMouseEnter={() => setSelectedIndex(index)}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     onChange(option);
-                    setSearchTerm('');
+                    setSearchTerm("");
                     setOpen(false);
                   }}
                 >

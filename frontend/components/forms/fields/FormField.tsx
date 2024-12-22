@@ -1,10 +1,6 @@
-import { FilePreview } from "@/components/FilePreview";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import { motion } from "framer-motion";
-import { Upload } from "lucide-react";
+import { formatDateTimeLocal } from "@/utils/date";
 import { useEffect, useRef, useState } from "react";
 import { AutocompleteField } from "./AutocompleteField";
 import { FileField } from "./FileField";
@@ -20,14 +16,21 @@ interface FormFieldProps {
   defaultValue?: string;
 }
 
-export function FormField({ value, onChange, label, options = [], type = "text", defaultValue }: FormFieldProps) {
+export function FormField({
+  value,
+  onChange,
+  label,
+  options = [],
+  type = "text",
+  defaultValue,
+}: FormFieldProps) {
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
   // Use empty string as fallback for undefined/null values
-  const inputValue = value ?? defaultValue ?? '';
+  const inputValue = value ?? defaultValue ?? "";
 
   useEffect(() => {
     // Only set default value if both value is undefined and defaultValue exists
@@ -36,13 +39,13 @@ export function FormField({ value, onChange, label, options = [], type = "text",
     }
   }, [defaultValue]); // Only run when defaultValue changes
 
-  const filteredOptions = options.filter(opt =>
-    opt.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOptions = options.filter((opt) =>
+    opt.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!open) {
-      if (e.key === 'ArrowDown') {
+      if (e.key === "ArrowDown") {
         setOpen(true);
         e.preventDefault();
       }
@@ -50,23 +53,25 @@ export function FormField({ value, onChange, label, options = [], type = "text",
     }
 
     switch (e.key) {
-      case 'ArrowDown':
-        setSelectedIndex(prev => Math.min(prev + 1, filteredOptions.length - 1));
+      case "ArrowDown":
+        setSelectedIndex((prev) =>
+          Math.min(prev + 1, filteredOptions.length - 1),
+        );
         e.preventDefault();
         break;
-      case 'ArrowUp':
-        setSelectedIndex(prev => Math.max(prev - 1, 0));
+      case "ArrowUp":
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
         e.preventDefault();
         break;
-      case 'Enter':
+      case "Enter":
         if (filteredOptions[selectedIndex]) {
           onChange(filteredOptions[selectedIndex]);
-          setSearchTerm('');
+          setSearchTerm("");
           setOpen(false);
         }
         e.preventDefault();
         break;
-      case 'Escape':
+      case "Escape":
         setOpen(false);
         e.preventDefault();
         break;
@@ -79,7 +84,7 @@ export function FormField({ value, onChange, label, options = [], type = "text",
       const list = listRef.current;
       const selectedItem = list.children[selectedIndex] as HTMLElement;
       if (selectedItem) {
-        selectedItem.scrollIntoView({ block: 'nearest' });
+        selectedItem.scrollIntoView({ block: "nearest" });
       }
     }
   }, [selectedIndex, open]);
@@ -115,20 +120,22 @@ export function FormField({ value, onChange, label, options = [], type = "text",
               <div
                 ref={listRef}
                 className="overflow-y-auto"
-                style={{ maxHeight: '200px' }}
+                style={{ maxHeight: "200px" }}
               >
                 {filteredOptions.map((option, index) => (
                   <button
                     key={index}
                     className={`w-full px-4 py-2 m-1 rounded-full transition-colors text-sm text-left block
-                              ${index === selectedIndex
-                        ? 'bg-indigo-100 text-indigo-900'
-                        : 'bg-indigo-50 hover:bg-indigo-100'}`}
+                              ${
+                                index === selectedIndex
+                                  ? "bg-indigo-100 text-indigo-900"
+                                  : "bg-indigo-50 hover:bg-indigo-100"
+                              }`}
                     onMouseEnter={() => setSelectedIndex(index)}
                     onMouseDown={(e) => {
                       e.preventDefault();
                       onChange(option);
-                      setSearchTerm('');
+                      setSearchTerm("");
                       setOpen(false);
                     }}
                   >
@@ -151,20 +158,50 @@ export function FormField({ value, onChange, label, options = [], type = "text",
       className="w-full"
       placeholder={`Ingrese ${label}`}
     />
-  )
+  );
 }
 
-export function FormFieldComponent({ field, value, onChange }: {
+export function FormFieldComponent({
+  field,
+  value,
+  onChange,
+}: {
   field: FormField;
   value: any;
   onChange: (value: any) => void;
 }) {
   const renderField = () => {
     switch (field.type) {
-      case 'richtext':
-        return <RichTextField value={value} onChange={onChange} label={field.label} />;
-      case 'file':
-        return <FileField value={value} onChange={onChange} label={field.label} />;
+      case "richtext":
+        return (
+          <RichTextField
+            value={value}
+            onChange={onChange}
+            label={field.label}
+          />
+        );
+      case "file":
+        return (
+          <FileField value={value} onChange={onChange} label={field.label} />
+        );
+      case "datetime":
+        const formattedValue = value
+          ? formatDateTimeLocal(value)
+          : field.defaultValue
+            ? formatDateTimeLocal(new Date(field.defaultValue))
+            : "";
+
+        return (
+          <Input
+            type="datetime-local"
+            value={formattedValue}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full rounded-xl border-2 focus:ring-2 focus:ring-indigo-100 
+                focus:border-indigo-300 transition-all duration-200 px-4 py-2
+                bg-white shadow-sm hover:border-indigo-200"
+            placeholder={`Seleccione ${field.label}`}
+          />
+        );
       default:
         return field.options?.length ? (
           <AutocompleteField
@@ -178,7 +215,7 @@ export function FormFieldComponent({ field, value, onChange }: {
         ) : (
           <Input
             type={field.type}
-            value={value ?? field.defaultValue ?? ''}
+            value={value ?? field.defaultValue ?? ""}
             onChange={(e) => onChange(e.target.value)}
             className="w-full"
             placeholder={`Ingrese ${field.label}`}

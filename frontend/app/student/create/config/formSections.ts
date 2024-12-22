@@ -1,4 +1,11 @@
-import { User, GraduationCap, Heart, Home, FileText, Users } from "lucide-react";
+import {
+  User,
+  GraduationCap,
+  Heart,
+  Home,
+  FileText,
+  Users,
+} from "lucide-react";
 import { FormSection } from "../types";
 import { AutocompleteService } from "@/services/form/AutocompleteService";
 
@@ -230,7 +237,8 @@ const createFormSections = async (): Promise<FormSection[]> => {
           label: "Talento y Capacidades Excepcionales",
           type: "richtext",
           options: autocompleteData.talentoYCapacidadesExepcionales?.opciones,
-          defaultValue: autocompleteData.talentoYCapacidadesExepcionales?.default,
+          defaultValue:
+            autocompleteData.talentoYCapacidadesExepcionales?.default,
         },
       ],
     },

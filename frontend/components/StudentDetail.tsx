@@ -13,49 +13,41 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { File, Pencil, Plus, Printer, Stars } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Registro } from "@/types/Registro";
 
-interface StudentRecord
-  extends Pick<
-    Registro,
-    | "id"
-    | "fecha"
-    | "resumen"
-    | "nombreEstudiante"
-    | "acuerdosPrevios"
-    | "remision"
-    | "piar"
-    | "compromisoPadres"
-    | "compromisoEstudiantes"
-  > {}
+type Registro = {
+  id: number;
+  fecha: string;
+  resumen: string;
+  nombre_estudiante: string;
+};
 
 export default function StudentDetail() {
-  const [studentRecords, setStudentRecords] = useState<StudentRecord[]>([]);
+  const [studentRecords, setStudentRecords] = useState<Registro[]>([]);
   const [loading, setLoading] = useState(true);
-  const [studentName, setStudentName] = useState<string | null>(null);
-  const params = useParams();
+  const [studentName, setStudentName] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const nombreEstudiante = params.nombreEstudiante;
+        const studentId = window.location.pathname.split("/").pop();
+        if (!studentId) throw new Error("No student ID found");
+
         const response = await fetch(
-          `http://127.0.0.1:8000/api/registros/all-registros-by-alumno/?nombreEstudiante=${nombreEstudiante}`,
+          `http://127.0.0.1:8000/api/registros/all-registros-by-alumno/${studentId}/`,
         );
         if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
-        setStudentRecords(
-          data.sort(
-            (a: StudentRecord, b: StudentRecord) =>
-              new Date(a.fecha).getTime() - new Date(b.fecha).getTime(),
-          ),
+
+        const data: Registro[] = await response.json();
+        const sortedRecords = data.sort(
+          (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
         );
-        if (data.length > 0) {
-          setStudentName(data[data.length - 1].nombreEstudiante);
-        }
+
+        setStudentRecords(sortedRecords);
+        if (sortedRecords.length > 0)
+          setStudentName(sortedRecords[0].nombre_estudiante);
       } catch (error) {
         console.error("Error fetching records:", error);
       } finally {
@@ -64,26 +56,28 @@ export default function StudentDetail() {
     };
 
     fetchRecords();
-  }, [params.nombreEstudiante]);
+  }, []);
 
-  const handleRecordClick = (id: number) => {
-    router.push(`/detail/${id}`);
+  const handleRecordClick = (id: number) => router.push(`/detail/${id}`);
+
+  const handleEditClick = (recordId: number, studentId: number) => {
+    const searchParams = new URLSearchParams({
+      studentId: studentId.toString(),
+      registroId: recordId.toString(),
+    });
+    router.push(`/registro-de-atencion?${searchParams.toString()}`);
   };
 
-  const handleEditClick = (id: number) => {
-    router.push(`/registro-de-atencion?edit=${id}`);
-  };
-
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <Skeleton className="w-[300px] h-[300px] rounded-2xl" />
       </div>
     );
+  }
 
   return (
     <div className="flex-1 p-8 flex flex-col bg-gray-50/50">
-      {/* Header with gradient background */}
       <header className="w-full mb-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
         <h1 className="text-2xl font-bold mb-2 text-gray-800">
           Historial del Estudiante
@@ -92,8 +86,14 @@ export default function StudentDetail() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {/* Add New Record Card - First Position */}
-        <Card className="w-[300px] h-[300px] group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50">
+        <Card
+          className="w-[300px] h-[300px] group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 cursor-pointer"
+          onClick={() => {
+            const studentId = window.location.pathname.split("/").pop();
+            if (studentId)
+              router.push(`/registro-de-atencion?studentId=${studentId}`);
+          }}
+        >
           <Button
             variant="ghost"
             size="lg"
@@ -103,13 +103,12 @@ export default function StudentDetail() {
           </Button>
         </Card>
 
-        {studentRecords.map((record, index) => (
-          <ContextMenu key={index}>
+        {studentRecords.map((record) => (
+          <ContextMenu key={record.id}>
             <ContextMenuTrigger>
               <Card
                 onClick={() => handleRecordClick(record.id)}
-                className="w-[300px] h-[300px] p-6 flex flex-col gap-4 hover:shadow-xl 
-                                    transition-all duration-300 bg-gradient-to-br from-white to-gray-50 cursor-pointer"
+                className="w-[300px] h-[300px] p-6 flex flex-col gap-4 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 cursor-pointer"
               >
                 <div className="bg-indigo-50 rounded-xl p-3">
                   <p className="text-sm text-indigo-600 font-medium text-center">
@@ -121,7 +120,6 @@ export default function StudentDetail() {
                     {format(new Date(record.fecha), "HH:mm", { locale: es })}
                   </p>
                 </div>
-
                 <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-300">
                   <p className="text-sm text-gray-600 leading-relaxed">
                     {record.resumen}
@@ -130,7 +128,14 @@ export default function StudentDetail() {
               </Card>
             </ContextMenuTrigger>
             <ContextMenuContent className="w-64">
-              <ContextMenuItem onClick={() => handleEditClick(record.id)}>
+              <ContextMenuItem
+                onClick={() =>
+                  handleEditClick(
+                    record.id,
+                    Number(window.location.pathname.split("/").pop()),
+                  )
+                }
+              >
                 <Pencil className="mr-2 h-4 w-4" />
                 <span>Editar</span>
               </ContextMenuItem>
