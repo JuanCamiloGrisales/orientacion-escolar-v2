@@ -15,6 +15,8 @@ import { es } from "date-fns/locale";
 import { File, Pencil, Plus, Printer, Stars } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { StudentInfoTooltip } from "./StudentInfoTooltip";
+import { StudentService } from "@/services/student/StudentService";
 
 type Registro = {
   id: number;
@@ -27,6 +29,7 @@ export default function StudentDetail() {
   const [studentRecords, setStudentRecords] = useState<Registro[]>([]);
   const [loading, setLoading] = useState(true);
   const [studentName, setStudentName] = useState<string>("");
+  const [studentData, setStudentData] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,6 +61,22 @@ export default function StudentDetail() {
     fetchRecords();
   }, []);
 
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const studentId = window.location.pathname.split("/").pop();
+        if (!studentId) return;
+        
+        const data = await StudentService.getStudent(studentId);
+        setStudentData(data);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
+    };
+
+    fetchStudentData();
+  }, []);
+
   const handleRecordClick = (id: number) => router.push(`/detail/${id}`);
 
   const handleEditClick = (recordId: number, studentId: number) => {
@@ -79,9 +98,17 @@ export default function StudentDetail() {
   return (
     <div className="flex-1 p-8 flex flex-col bg-gray-50/50">
       <header className="w-full mb-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-2 text-gray-800">
-          Historial del Estudiante
-        </h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Historial del Estudiante
+          </h1>
+          {studentData && (
+            <StudentInfoTooltip
+              studentId={window.location.pathname.split("/").pop()!}
+              studentData={studentData}
+            />
+          )}
+        </div>
         <p className="text-gray-600">{studentName}</p>
       </header>
 
