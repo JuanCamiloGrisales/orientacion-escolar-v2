@@ -24,15 +24,14 @@ const UpcomingEvents: React.FC = () => {
     .slice(0, 5);
 
   const formatDate = (date: Date) => {
-    // Remove time information from the relative date display
     return formatRelative(date, new Date(), { locale: es })
-      .replace(/a las \d{1,2}:\d{2}/, "") // Remove "a las HH:MM"
-      .replace(/\s+/g, " ") // Clean up extra spaces
+      .replace(/a las \d{1,2}:\d{2}/, "")
+      .replace(/\s+/g, " ")
       .trim();
   };
 
-  const handleStudentClick = (nombreEstudiante: string) => {
-    router.push(`/student/${nombreEstudiante}`);
+  const handleStudentClick = (idEstudiante: number) => {
+    router.push(`/student/${idEstudiante}`);
   };
 
   return (
@@ -48,7 +47,7 @@ const UpcomingEvents: React.FC = () => {
                 key={event.id}
                 className="flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 
                                          transition-all duration-200 border border-transparent hover:border-indigo-50 cursor-pointer"
-                onClick={() => handleStudentClick(event.nombreEstudiante)}
+                onClick={() => handleStudentClick(event.id)}
               >
                 <Avatar className="h-12 w-12 ring-2 ring-indigo-100">
                   <AvatarImage src="/placeholder.svg?height=48&width=48" />
