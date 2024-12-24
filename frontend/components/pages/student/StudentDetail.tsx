@@ -66,7 +66,7 @@ export default function StudentDetail() {
       try {
         const studentId = window.location.pathname.split("/").pop();
         if (!studentId) return;
-        
+
         const data = await StudentService.getStudent(studentId);
         setStudentData(data);
       } catch (error) {

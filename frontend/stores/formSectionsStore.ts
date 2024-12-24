@@ -1,6 +1,9 @@
-import { create } from 'zustand';
-import { FormSection } from '@/app/student/create/types';
-import { createFormSections, formSections } from '@/app/student/create/config/formSections';
+import { create } from "zustand";
+import { FormSection } from "@/app/student/create/types";
+import {
+  createFormSections,
+  formSections,
+} from "@/app/student/create/config/formSections";
 
 interface FormSectionsStore {
   sections: FormSection[];
@@ -16,7 +19,7 @@ export const useFormSectionsStore = create<FormSectionsStore>((set) => ({
       const sections = await createFormSections();
       set({ sections, initialized: true });
     } catch (error) {
-      console.error('Error initializing form sections:', error);
+      console.error("Error initializing form sections:", error);
       // En caso de error, mantener los formSections básicos
       set({ initialized: true });
     }

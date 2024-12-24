@@ -157,8 +157,8 @@ const createFormSections = async (): Promise<FormSection[]> => {
           type: "text",
         },
         {
-          name: "parentesco",
-          label: "Parentesco",
+          name: "parentescoAcudiente", // Cambiado de parentesco a parentescoAcudiente
+          label: "Parentesco del Acudiente",
           type: "text",
           options: autocompleteData.parentesco?.opciones,
           defaultValue: autocompleteData.parentesco?.default,
@@ -169,8 +169,8 @@ const createFormSections = async (): Promise<FormSection[]> => {
           type: "number",
         },
         {
-          name: "ocupacion",
-          label: "Ocupación",
+          name: "ocupacionAcudiente", // Cambiado de ocupacion a ocupacionAcudiente
+          label: "Ocupación del Acudiente",
           type: "text",
           options: autocompleteData.ocupacion?.opciones,
           defaultValue: autocompleteData.ocupacion?.default,

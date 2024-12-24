@@ -34,8 +34,8 @@ export const StudentFieldsOrganizer = ({
   // Mapping de campos del backend a campos del formulario
   const fieldMapping: { [key: string]: string } = {
     epsEstudiante: "entidadPrestadoraDeSalud",
-    parentescoAcudiente: "parentesco",
-    ocupacionAcudiente: "ocupacion",
+    // parentescoAcudiente: "parentesco",
+    // ocupacionAcudiente: "ocupacion",
   };
 
   const getFieldValue = (fieldName: string) => {
@@ -56,7 +56,7 @@ export const StudentFieldsOrganizer = ({
         "Sin archivos"
       );
     }
-    
+
     if (field.type === "richtext") {
       return value ? (
         <div
@@ -71,10 +71,10 @@ export const StudentFieldsOrganizer = ({
     if (field.type === "date") {
       try {
         const date = new Date(value);
-        return date.toLocaleDateString('es-ES', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+        return date.toLocaleDateString("es-ES", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         });
       } catch {
         return value;
@@ -93,7 +93,7 @@ export const StudentFieldsOrganizer = ({
       {sections.map((section) => {
         // Solo mostrar secciones que tengan al menos un campo con valor
         const hasData = section.fields.some(
-          field => getFieldValue(field.name) !== undefined
+          (field) => getFieldValue(field.name) !== undefined,
         );
 
         if (!hasData && layout === "compact") return null;
