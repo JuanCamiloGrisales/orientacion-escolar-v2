@@ -24,6 +24,14 @@ class RegistroViewSet(viewsets.ModelViewSet):
     serializer_class = RegistroSerializer
     permission_classes = []
 
+    def get_serializer_class(self):
+        """
+        Return appropriate serializer class.
+        """
+        if self.action == "all_registros_by_alumno":
+            return RegistroSummarySerializer
+        return self.serializer_class
+
     def update(self, request, *args, **kwargs):
         """
         Update a Registro instance. If 'json_data' is present in the request data,

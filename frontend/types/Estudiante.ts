@@ -1,3 +1,5 @@
+import { Archivo } from ".";
+
 export interface Estudiante {
   id: number;
   nombreEstudiante: string;
@@ -38,11 +40,6 @@ export interface Estudiante {
   estadoCaso: string;
   fechaProximoSeguimiento: string;
   lineaDeAtencion: string;
-}
-
-export interface Archivo {
-  id: number;
-  archivo: string;
 }
 
 export interface EstudiantesContextType {

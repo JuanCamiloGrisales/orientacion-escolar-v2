@@ -1,9 +1,19 @@
-import { Estudiante } from "./Estudiante";
-import { Archivo } from ".";
-
-export interface Registro {
+export interface ArchivoRegistro {
   id: number;
-  estudiante: Estudiante;
+  archivo: string;
+}
+
+export interface RegistroSummary {
+  id: number;
+  fecha: string;
+  resumen: string;
+  nombre_estudiante: string;
+}
+
+export interface RegistroDetalle {
+  id: number;
+  acuerdosPrevios: ArchivoRegistro[];
+  remision: ArchivoRegistro[];
   consecutivo: number;
   fecha: string;
   remitidoPor: string;
@@ -13,11 +23,9 @@ export interface Registro {
   tipoDeAtencion: string;
   relatoEntrevistado: string;
   expectativasEntrevistado: string;
-  acuerdosPrevios: Archivo[];
   observaciones: string;
   activacionRuta: string;
   procesosConvivencia: string;
-  remision: Archivo[];
   estadoCaso: string;
   fechaProximoSeguimiento: string;
   nombreOrientadora: string;
@@ -25,5 +33,6 @@ export interface Registro {
   resumen: string;
   slug: string;
   resumenRelato: string;
-  estudiante_snapshot: any;
+  estudiante_snapshot: Record<string, any>;
+  estudiante: number;
 }

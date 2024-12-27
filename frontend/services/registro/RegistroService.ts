@@ -1,10 +1,33 @@
 import type { FormData as RegistroFormData } from "@/app/registro-de-atencion/types/form";
 import { API_ROUTES, createApiUrl } from "@/config/api";
+import { IRegistroService } from "./IRegistroService";
+import { RegistroDetalle, RegistroSummary } from "./types";
 import axios from "axios";
 
-export class RegistroService {
-  static async createRegistro(
-    data: any,
+export class RegistroService implements IRegistroService {
+  public async getRegistrosByStudent(studentId: string): Promise<RegistroSummary[]> {
+    try {
+      const response = await axios.get(
+        createApiUrl(API_ROUTES.REGISTROS.BY_STUDENT, { id: studentId })
+      );
+      return response.data.sort(
+        (a: RegistroSummary, b: RegistroSummary) => 
+          new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async getRegistro(id: string): Promise<RegistroDetalle> {
+    const response = await axios.get(
+      createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
+    );
+    return response.data;
+  }
+
+  public async createRegistro(
+    data: RegistroFormData,
     files: { [key: string]: File[] },
   ): Promise<void> {
     const formData = new FormData();
@@ -26,11 +49,11 @@ export class RegistroService {
     });
   }
 
-  static async updateRegistro(
+  public async updateRegistro(
     id: string,
     formData: RegistroFormData,
     summary: string,
-  ): Promise<any> {
+  ): Promise<RegistroDetalle> {
     const formDataObj = this.prepareFormData(formData, summary);
     const response = await axios.put(
       createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
@@ -42,11 +65,11 @@ export class RegistroService {
     return response.data;
   }
 
-  static async patchRegistro(
+  public async patchRegistro(
     id: string,
     formData: RegistroFormData,
     summary: string,
-  ): Promise<any> {
+  ): Promise<RegistroDetalle> {
     const formDataObj = this.prepareFormData(formData, summary);
     const response = await axios.patch(
       createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
@@ -58,18 +81,11 @@ export class RegistroService {
     return response.data;
   }
 
-  static async getRegistro(id: string): Promise<any> {
-    const response = await axios.get(
-      createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
-    );
-    return response.data;
-  }
-
-  private static prepareFormData(
+  private prepareFormData(
     formData: RegistroFormData,
     summary: string,
-  ): globalThis.FormData {
-    const formDataObj = new globalThis.FormData();
+  ): FormData {
+    const formDataObj = new FormData();
     const flattenedData = {
       estudiante: formData.student.id,
       fecha: formData.general.fecha,
@@ -101,10 +117,10 @@ export class RegistroService {
     return formDataObj;
   }
 
-  private static appendFiles(
+  private appendFiles(
     fieldName: string,
     fileData: { files: File[] },
-    formData: globalThis.FormData,
+    formData: FormData,
   ): void {
     if (fileData?.files?.length > 0) {
       fileData.files.forEach((file) => {
@@ -112,4 +128,11 @@ export class RegistroService {
       });
     }
   }
+
+  // Métodos estáticos para mantener compatibilidad con el código existente
+  public static getInstance(): RegistroService {
+    return new RegistroService();
+  }
 }
+
+export const registroService: IRegistroService = new RegistroService();

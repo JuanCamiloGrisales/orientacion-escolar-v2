@@ -12,6 +12,7 @@ export const API_ROUTES = {
   REGISTROS: {
     BASE: "/registros/",
     DETAIL: "/registros/:id/",
+    BY_STUDENT: "/registros/all-registros-by-alumno/:id/",
   },
   FIELDS: {
     EDIT: "/editarcampos/",
