@@ -15,75 +15,57 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useEstudiantes } from "@/lib/StudentsContext";
 import React, { useEffect, useState } from "react";
-
-export interface Filters {
-  gradoEscolaridad: string[];
-  fechaProximoSeguimiento: {
-    from: Date | null;
-    to: Date | null;
-  };
-}
+import { StudentPreview } from "../../types";
+import { DEFAULT_FILTERS, Filters } from "../../types/filters";
+import { useFilterOptions } from "../../hooks/useFilterOptions";
 
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApply: (filters: Filters) => void;
-  initialFilters?: Filters; // Añadir prop para filtros iniciales
+  initialFilters?: Filters;
+  students: StudentPreview[];
 }
-
-const DEFAULT_FILTERS: Filters = {
-  gradoEscolaridad: [],
-  fechaProximoSeguimiento: { from: null, to: null },
-};
 
 const FilterModal: React.FC<FilterModalProps> = ({
   isOpen,
   onClose,
   onApply,
   initialFilters = DEFAULT_FILTERS,
+  students,
 }) => {
-  const { estudiantes } = useEstudiantes();
   const [filters, setFilters] = useState<Filters>(initialFilters);
-  const [gradoEscolaridadOptions, setGradoEscolaridadOptions] = useState<
-    string[]
-  >([]);
+  const { gradoEscolaridadOptions } = useFilterOptions(students);
 
-  // Actualizar filtros cuando cambien los filtros iniciales
   useEffect(() => {
     setFilters(initialFilters);
   }, [initialFilters]);
 
-  useEffect(() => {
-    const uniqueGrados = Array.from(
-      new Set(estudiantes.map((student) => student.gradoEscolaridad)),
-    );
-    setGradoEscolaridadOptions(uniqueGrados);
-  }, [estudiantes]);
-
   const handleCheckboxChange = (value: string) => {
-    setFilters((prevFilters) => {
-      const updatedGradoEscolaridad = prevFilters.gradoEscolaridad.includes(
-        value,
-      )
-        ? prevFilters.gradoEscolaridad.filter((item) => item !== value)
-        : [...prevFilters.gradoEscolaridad, value];
-      return { ...prevFilters, gradoEscolaridad: updatedGradoEscolaridad };
-    });
+    setFilters((prev) => ({
+      ...prev,
+      gradoEscolaridad: prev.gradoEscolaridad.includes(value)
+        ? prev.gradoEscolaridad.filter((item) => item !== value)
+        : [...prev.gradoEscolaridad, value],
+    }));
   };
 
   const handleDateChange = (date: { from: Date | null; to: Date | null }) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    setFilters((prev) => ({
+      ...prev,
       fechaProximoSeguimiento: date,
     }));
   };
 
+  const hasActiveFilters =
+    filters.gradoEscolaridad.length > 0 ||
+    Boolean(filters.fechaProximoSeguimiento.from) ||
+    Boolean(filters.fechaProximoSeguimiento.to);
+
   const handleClearFilters = () => {
-    const clearedFilters = DEFAULT_FILTERS;
-    setFilters(clearedFilters);
-    onApply(clearedFilters); // Notificar al componente padre
+    setFilters(DEFAULT_FILTERS);
+    onApply(DEFAULT_FILTERS);
   };
 
   const handleApply = () => {
@@ -92,7 +74,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleClose = () => {
-    setFilters(initialFilters); // Restaurar al estado inicial al cerrar
+    setFilters(initialFilters);
     onClose();
   };
 
@@ -104,8 +86,8 @@ const FilterModal: React.FC<FilterModalProps> = ({
             Filtros de Búsqueda
           </DialogTitle>
         </DialogHeader>
+
         <Accordion type="multiple" className="space-y-4 mt-4">
-          {/* Grado Escolaridad Filters */}
           <AccordionItem value="gradoEscolaridad">
             <AccordionTrigger className="text-lg font-semibold">
               Grado Escolaridad
@@ -128,7 +110,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          {/* Fecha Próximo Seguimiento */}
           <AccordionItem value="fechaProximoSeguimiento">
             <AccordionTrigger className="text-lg font-semibold">
               Fecha Próximo Seguimiento
@@ -141,6 +122,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
         <DialogFooter className="mt-6 flex justify-end space-x-2">
           <Button variant="outline" onClick={handleClose}>
             Cancelar
@@ -148,22 +130,11 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <Button
             variant="outline"
             onClick={handleClearFilters}
-            disabled={
-              filters.gradoEscolaridad.length === 0 &&
-              !filters.fechaProximoSeguimiento.from &&
-              !filters.fechaProximoSeguimiento.to
-            }
+            disabled={!hasActiveFilters}
           >
             Eliminar Filtros
           </Button>
-          <Button
-            onClick={handleApply}
-            disabled={
-              filters.gradoEscolaridad.length === 0 &&
-              !filters.fechaProximoSeguimiento.from &&
-              !filters.fechaProximoSeguimiento.to
-            }
-          >
+          <Button onClick={handleApply} disabled={!hasActiveFilters}>
             Aplicar Filtros
           </Button>
         </DialogFooter>

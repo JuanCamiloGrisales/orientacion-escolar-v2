@@ -8,36 +8,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEstudiantes } from "@/lib/StudentsContext";
 import { Download, Filter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import FilterModal, { Filters } from "./FilterModal";
+import { StudentPreview } from "../../types";
+import { DEFAULT_FILTERS, Filters } from "../../types/filters";
+import FilterModal from "./FilterModal";
 
 const statusColors: { [key: string]: string } = {
-  "En proceso": "bg-emerald-500",
+  Abierto: "bg-emerald-500",
   Cerrado: "bg-red-500",
-  Unavailable: "bg-gray-500",
-  "Surgical intervention": "bg-blue-500",
-  "In surgery": "bg-yellow-500",
-  "Expected hospital stay": "bg-purple-500",
-};
-
-const DEFAULT_FILTERS: Filters = {
-  gradoEscolaridad: [],
-  fechaProximoSeguimiento: { from: null, to: null },
 };
 
 interface StudentListProps {
+  students: StudentPreview[];
   searchTerm: string;
   selectedTab: string;
 }
 
 const StudentList: React.FC<StudentListProps> = ({
+  students,
   searchTerm,
   selectedTab,
 }) => {
-  const { estudiantes, loading, error } = useEstudiantes();
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -61,14 +54,6 @@ const StudentList: React.FC<StudentListProps> = ({
     setAppliedFilters(filters);
     setCurrentPage(1);
   };
-
-  if (loading) {
-    return <div>Cargando estudiantes...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
 
   const matchesSearch = (studentName: string, search: string): boolean => {
     if (!search) return true;
@@ -117,12 +102,12 @@ const StudentList: React.FC<StudentListProps> = ({
       }
     }
     if (normalizedName.includes(normalizedSearch)) {
-      score += 10;
+      score += 20;
     }
     return score;
   };
 
-  const filteredStudents = estudiantes
+  const filteredStudents = students
     .filter((student) => {
       const searchMatch = matchesSearch(student.nombreEstudiante, searchTerm);
       const tabMatch =
@@ -267,6 +252,7 @@ const StudentList: React.FC<StudentListProps> = ({
       </Table>
 
       <FilterModal
+        students={students}
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApply={handleApplyFilters}

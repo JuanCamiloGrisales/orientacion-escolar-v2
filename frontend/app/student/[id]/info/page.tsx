@@ -1,7 +1,7 @@
 "use client";
 
-import { EditableStudentFields } from "@/components/pages/student/EditableStudentFields";
-import { StudentFieldsOrganizer } from "@/components/pages/student/StudentFieldsOrganizer";
+import { EditableStudentFields } from "@/services/student/components/student/EditableStudentFields";
+import { StudentFieldsOrganizer } from "@/services/student/components/student/StudentFieldsOrganizer";
 import { Button } from "@/components/ui/button";
 import { StudentService } from "@/services/student/StudentService";
 import { ArrowLeft, Download, Pencil, Printer } from "lucide-react";

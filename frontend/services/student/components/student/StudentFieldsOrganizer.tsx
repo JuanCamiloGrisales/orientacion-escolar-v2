@@ -4,6 +4,8 @@ import { useFormSectionsStore } from "@/stores/formSectionsStore";
 import { FilePreview } from "@/components/FilePreview";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BackendFile } from "@/types/file";
+import { File } from "lucide-react";
 
 interface StudentFieldsOrganizerProps {
   studentData: any;
@@ -49,9 +51,20 @@ export const StudentFieldsOrganizer = ({
 
     if (field.type === "file" && Array.isArray(value)) {
       return value.length > 0 ? (
-        <div className="mt-2">
-          <FilePreview files={value} onRemove={() => {}} />
-        </div>
+        <FilePreview
+          files={value.map((file: BackendFile) => ({
+            name: `${field.name}_${file.id}`,
+            url: file.archivo,
+            isBackendFile: true,
+            id: file.id,
+            type: file.archivo.toLowerCase().endsWith(".pdf")
+              ? "application/pdf"
+              : "application/octet-stream",
+            size: 0,
+          }))}
+          onRemove={() => {}}
+          readOnly
+        />
       ) : (
         "Sin archivos"
       );

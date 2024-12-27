@@ -1,25 +1,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEstudiantes } from "@/lib/StudentsContext";
 import { format, formatRelative } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon, ClockIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { StudentPreview } from "../../types";
 
-const UpcomingEvents: React.FC = () => {
-  const { estudiantes } = useEstudiantes();
+interface UpcomingEventsProps {
+  students: StudentPreview[];
+}
+
+const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ students }) => {
   const router = useRouter();
 
-  const upcomingEvents = estudiantes
+  const upcomingEvents = students
     .filter(
-      (estudiante) =>
-        estudiante.fechaProximoSeguimiento &&
-        new Date(estudiante.fechaProximoSeguimiento) > new Date(),
+      (student) =>
+        student.fechaProximoSeguimiento &&
+        new Date(student.fechaProximoSeguimiento) > new Date(),
     )
     .sort(
       (a, b) =>
-        new Date(a.fechaProximoSeguimiento!).getTime() -
-        new Date(b.fechaProximoSeguimiento!).getTime(),
+        new Date(a.fechaProximoSeguimiento).getTime() -
+        new Date(b.fechaProximoSeguimiento).getTime(),
     )
     .slice(0, 5);
 

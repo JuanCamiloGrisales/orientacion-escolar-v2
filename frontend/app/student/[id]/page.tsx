@@ -1,4 +1,4 @@
-import StudentDetail from "@/components/pages/student/StudentDetail";
+import StudentDetail from "@/services/student/components/student/StudentDetail";
 
 export default function StudentPage() {
   return <StudentDetail />;

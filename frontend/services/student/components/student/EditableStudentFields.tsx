@@ -8,6 +8,23 @@ import { StudentService } from "@/services/student/StudentService";
 import { useFormSectionsStore } from "@/stores/formSectionsStore";
 import { Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { BackendFile, DisplayFile } from "@/types/file";
+
+const mapBackendFilesToDisplayFiles = (
+  fieldName: string,
+  files: BackendFile[],
+): DisplayFile[] => {
+  return files.map((file) => ({
+    name: `${fieldName}_${file.id}`,
+    url: file.archivo,
+    isBackendFile: true,
+    id: file.id,
+    type: file.archivo.toLowerCase().endsWith(".pdf")
+      ? "application/pdf"
+      : "application/octet-stream",
+    size: 0,
+  }));
+};
 
 interface EditableStudentFieldsProps {
   studentData: any;
@@ -24,7 +41,9 @@ export const EditableStudentFields = ({
 }: EditableStudentFieldsProps) => {
   const { sections, initialize } = useFormSectionsStore();
   const [formData, setFormData] = useState(initialData);
-  const [files, setFiles] = useState<{ [key: string]: File[] }>({});
+  const [files, setFiles] = useState<{ [key: string]: (File | DisplayFile)[] }>(
+    {},
+  );
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -32,13 +51,41 @@ export const EditableStudentFields = ({
     initialize();
   }, [initialize]);
 
+  // Inicializar los archivos existentes
+  useEffect(() => {
+    const fileFields = ["piar", "compromisoPadres", "compromisoEstudiantes"];
+    const initialFiles: { [key: string]: (File | DisplayFile)[] } = {};
+
+    fileFields.forEach((fieldName) => {
+      if (initialData[fieldName] && Array.isArray(initialData[fieldName])) {
+        initialFiles[fieldName] = mapBackendFilesToDisplayFiles(
+          fieldName,
+          initialData[fieldName],
+        );
+      }
+    });
+
+    setFiles(initialFiles);
+  }, [initialData]);
+
   const handleFieldChange = (fieldName: string, value: any) => {
-    if (value instanceof FileList || Array.isArray(value)) {
+    console.log("Field changed:", fieldName, value);
+
+    if (
+      value instanceof FileList ||
+      (Array.isArray(value) &&
+        (value[0] instanceof File || "isBackendFile" in value[0]))
+    ) {
+      // Para campos de archivo, actualiza el estado de files
+      const fileArray = Array.from(value instanceof FileList ? value : value);
       setFiles((prev) => ({
         ...prev,
-        [fieldName]: Array.from(value),
+        [fieldName]: fileArray,
       }));
+
+      // No actualizamos formData para archivos, ya que se manejan por separado
     } else {
+      // Para campos normales
       setFormData((prev) => ({
         ...prev,
         [fieldName]: value,

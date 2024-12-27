@@ -131,6 +131,31 @@ class EstudianteViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, *args, **kwargs):
+        """
+        Update an Estudiante instance and handle file attachments.
+        """
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=kwargs.get("partial", False))
+            serializer.is_valid(raise_exception=True)
+            estudiante = serializer.save()
+
+            file_fields = {
+                "piar": request.FILES.getlist("piar", []),
+                "compromisoPadres": request.FILES.getlist("compromisoPadres", []),
+                "compromisoEstudiantes": request.FILES.getlist("compromisoEstudiantes", []),
+            }
+
+            for field_name, files in file_fields.items():
+                for file in files:
+                    archivo = Archivo.objects.create(archivo=file)
+                    getattr(estudiante, field_name).add(archivo)
+
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EstudiantePreviewViewSet(viewsets.ReadOnlyModelViewSet):
     """

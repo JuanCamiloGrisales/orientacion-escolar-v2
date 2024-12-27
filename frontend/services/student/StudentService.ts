@@ -1,9 +1,9 @@
 import { StudentFormData } from "@/app/student/create/types";
+import { API_ROUTES, createApiUrl } from "@/config/api";
+import { StudentPreview } from "./types";
 import axios from "axios";
 
 export class StudentService {
-  private static readonly BASE_URL = "http://127.0.0.1:8000/api";
-
   public static async createStudent(
     formData: StudentFormData,
     files: { [key: string]: File[] },
@@ -25,11 +25,15 @@ export class StudentService {
         });
       });
 
-      const response = await axios.post(`${this.BASE_URL}/estudiantes/`, form, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        createApiUrl(API_ROUTES.STUDENTS.BASE),
+        form,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -57,9 +61,9 @@ export class StudentService {
           form.append(key, file);
         });
       });
-
+      console.log("form", form);
       const response = await axios.put(
-        `${this.BASE_URL}/estudiantes/${studentId}/`,
+        createApiUrl(API_ROUTES.STUDENTS.DETAIL, { id: studentId }),
         form,
         {
           headers: {
@@ -73,22 +77,20 @@ export class StudentService {
     }
   }
 
-  public static async getStudentPreview(studentId: string): Promise<any> {
-    const response = await axios.get(
-      `${this.BASE_URL}/estudiante-preview/${studentId}/`,
-    );
+  public static async getStudentPreview(): Promise<StudentPreview[]> {
+    const response = await axios.get(createApiUrl(API_ROUTES.STUDENTS.PREVIEW));
     return response.data;
   }
 
   public static async getAllStudents(): Promise<any> {
-    const response = await axios.get(`${this.BASE_URL}/lista-estudiantes/`);
+    const response = await axios.get(createApiUrl(API_ROUTES.STUDENTS.LIST));
     return response.data;
   }
 
   public static async getStudent(studentId: string): Promise<any> {
     try {
       const response = await axios.get(
-        `${this.BASE_URL}/estudiantes/${studentId}/`,
+        createApiUrl(API_ROUTES.STUDENTS.DETAIL, { id: studentId }),
       );
       return response.data;
     } catch (error) {

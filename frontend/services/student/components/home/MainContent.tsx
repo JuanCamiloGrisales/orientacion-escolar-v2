@@ -2,12 +2,14 @@
 import { Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useStudentPreview } from "../../hooks/useStudentPreview";
 import StudentList from "./StudentList";
 import UpcomingEvents from "./UpcomingEvents";
 
 const MainContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("General");
+  const { students, isLoading, error, refetch } = useStudentPreview();
   const router = useRouter();
   const tabs = ["General", "Orientación", "Prevención", "Intervención"];
 
@@ -16,11 +18,16 @@ const MainContent = () => {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .split("")
-      .sort()
-      .join("")
       .trim();
   };
+
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <main className="flex-1 p-8 flex flex-col bg-gray-50/50">
@@ -76,6 +83,7 @@ const MainContent = () => {
             ))}
           </div>
           <StudentList
+            students={students}
             searchTerm={normalizeText(searchTerm)}
             selectedTab={selectedTab}
           />
@@ -83,7 +91,7 @@ const MainContent = () => {
 
         {/* Right Column */}
         <div className="flex-1">
-          <UpcomingEvents />
+          <UpcomingEvents students={students} />
         </div>
       </div>
     </main>

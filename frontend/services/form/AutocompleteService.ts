@@ -1,3 +1,4 @@
+import { API_ROUTES, createApiUrl } from "@/config/api";
 import { AutocompleteData, StudentData } from "@/types/Form";
 import axios from "axios";
 
@@ -23,8 +24,8 @@ export class AutocompleteService {
 
     // Fetch autocomplete data
     const [fieldsResponse, studentsResponse] = await Promise.all([
-      axios.get<AutocompleteData>("http://127.0.0.1:8000/api/editarcampos/"),
-      axios.get<StudentData>("http://127.0.0.1:8000/api/lista-estudiantes/"),
+      axios.get<AutocompleteData>(createApiUrl(API_ROUTES.FIELDS.EDIT)),
+      axios.get<StudentData>(createApiUrl(API_ROUTES.STUDENTS.LIST)),
     ]);
 
     // Save student data in separate cache

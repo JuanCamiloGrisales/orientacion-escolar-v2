@@ -1,11 +1,21 @@
 import { FilePreview } from "@/components/FilePreview";
 import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FileFieldProps } from "./types";
+import { DisplayFile, FileOrDisplayFile } from "@/types/file";
 
 export function FileField({ value, onChange, label }: FileFieldProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [files, setFiles] = useState<FileOrDisplayFile[]>(
+    Array.isArray(value) ? value : [],
+  );
+
+  useEffect(() => {
+    if (Array.isArray(value)) {
+      setFiles(value);
+    }
+  }, [value]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -31,8 +41,21 @@ export function FileField({ value, onChange, label }: FileFieldProps) {
     );
 
     if (validFiles.length) {
-      onChange(validFiles);
+      handleNewFiles(validFiles);
     }
+  };
+
+  const handleNewFiles = (newFiles: File[]) => {
+    const updatedFiles = [...files, ...newFiles];
+    setFiles(updatedFiles);
+    onChange(updatedFiles);
+  };
+
+  const handleRemove = (index: number) => {
+    const newFiles = [...files];
+    newFiles.splice(index, 1);
+    setFiles(newFiles);
+    onChange(newFiles);
   };
 
   return (
@@ -62,7 +85,7 @@ export function FileField({ value, onChange, label }: FileFieldProps) {
           onChange={(e) => {
             if (e.target.files) {
               const files = Array.from(e.target.files);
-              onChange(files);
+              handleNewFiles(files);
             }
           }}
           className="hidden"
@@ -87,15 +110,8 @@ export function FileField({ value, onChange, label }: FileFieldProps) {
         </label>
       </motion.div>
 
-      {Array.isArray(value) && value.length > 0 && (
-        <FilePreview
-          files={value}
-          onRemove={(index) => {
-            const newFiles = [...value];
-            newFiles.splice(index, 1);
-            onChange(newFiles);
-          }}
-        />
+      {Array.isArray(files) && files.length > 0 && (
+        <FilePreview files={files} onRemove={handleRemove} />
       )}
     </div>
   );

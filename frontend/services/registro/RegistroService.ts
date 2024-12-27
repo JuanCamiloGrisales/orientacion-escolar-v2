@@ -1,9 +1,8 @@
 import type { FormData as RegistroFormData } from "@/app/registro-de-atencion/types/form";
+import { API_ROUTES, createApiUrl } from "@/config/api";
 import axios from "axios";
 
 export class RegistroService {
-  private static readonly BASE_URL = "http://127.0.0.1:8000/api";
-
   static async createRegistro(
     data: any,
     files: { [key: string]: File[] },
@@ -20,7 +19,7 @@ export class RegistroService {
       });
     });
 
-    await axios.post(`${this.BASE_URL}/registros/`, formData, {
+    await axios.post(createApiUrl(API_ROUTES.REGISTROS.BASE), formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -34,7 +33,7 @@ export class RegistroService {
   ): Promise<any> {
     const formDataObj = this.prepareFormData(formData, summary);
     const response = await axios.put(
-      `${this.BASE_URL}/registros/${id}/`,
+      createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
       formDataObj,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -50,7 +49,7 @@ export class RegistroService {
   ): Promise<any> {
     const formDataObj = this.prepareFormData(formData, summary);
     const response = await axios.patch(
-      `${this.BASE_URL}/registros/${id}/`,
+      createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
       formDataObj,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -60,7 +59,9 @@ export class RegistroService {
   }
 
   static async getRegistro(id: string): Promise<any> {
-    const response = await axios.get(`${this.BASE_URL}/registros/${id}/`);
+    const response = await axios.get(
+      createApiUrl(API_ROUTES.REGISTROS.DETAIL, { id }),
+    );
     return response.data;
   }
 

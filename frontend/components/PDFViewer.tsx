@@ -3,13 +3,24 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 interface PDFViewerProps {
-  url: string;
+  url: string | Blob;
   onClose: () => void;
 }
 
 export const PDFViewer = ({ url, onClose }: PDFViewerProps) => {
+  const pdfUrl = url instanceof Blob ? URL.createObjectURL(url) : url;
+
+  useEffect(() => {
+    return () => {
+      if (url instanceof Blob) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [url]);
+
   return (
     <motion.div
       initial={{ x: "-100%" }}
@@ -23,7 +34,7 @@ export const PDFViewer = ({ url, onClose }: PDFViewerProps) => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
-      <iframe src={url} className="w-full h-full" />
+      <iframe src={pdfUrl} className="w-full h-full" />
     </motion.div>
   );
 };
