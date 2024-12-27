@@ -18,9 +18,10 @@ dependencies = [
 line-length = 120
 
 [tool.ruff.lint]
-select = ["I", "F"]
+select = ["I", "F", "DJ"]
 
 [tool.uv]
 dev-dependencies = [
     "django-extensions>=3.2.3",
+    "drf-yasg>=1.21.8",
 ]

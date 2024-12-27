@@ -1,7 +1,9 @@
-import { createContext, useContext, useState } from 'react';
-import { useFormFill } from '../hooks/useFormFill';
+import { createContext, useContext, useState } from "react";
+import { useFormFill } from "../hooks/useFormFill";
 
-const FormFillContext = createContext<ReturnType<typeof useFormFill> | undefined>(undefined);
+const FormFillContext = createContext<
+  ReturnType<typeof useFormFill> | undefined
+>(undefined);
 
 export function FormFillProvider({ children }) {
   const formFillUtils = useFormFill();
@@ -15,7 +17,9 @@ export function FormFillProvider({ children }) {
 export function useFormFillContext() {
   const context = useContext(FormFillContext);
   if (context === undefined) {
-    throw new Error('useFormFillContext must be used within a FormFillProvider');
+    throw new Error(
+      "useFormFillContext must be used within a FormFillProvider",
+    );
   }
   return context;
 }

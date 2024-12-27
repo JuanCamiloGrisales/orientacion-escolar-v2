@@ -1,86 +1,103 @@
 from rest_framework import serializers
 
-from .models import Archivo, Registro
+from .models import Archivo, Estudiante, Registro
 
 
 class ArchivoSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Archivo model.
+    """
+
     class Meta:
         model = Archivo
         fields = "__all__"
 
 
+class EstudianteSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Estudiante model.
+    """
+
+    piar = ArchivoSerializer(many=True, read_only=True)
+    compromisoPadres = ArchivoSerializer(many=True, read_only=True)
+    compromisoEstudiantes = ArchivoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Estudiante
+        fields = "__all__"
+
+
 class RegistroSerializer(serializers.ModelSerializer):
-    acuerdosPrevios = ArchivoSerializer(many=True, required=False)
-    remision = ArchivoSerializer(many=True, required=False)
-    piar = ArchivoSerializer(many=True, required=False)
-    compromisoPadres = ArchivoSerializer(many=True, required=False)
-    compromisoEstudiantes = ArchivoSerializer(many=True, required=False)
+    """
+    Serializer for Registro model.
+    """
+
+    acuerdosPrevios = ArchivoSerializer(many=True, read_only=True)
+    remision = ArchivoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Registro
         fields = "__all__"
 
-    def create(self, validated_data):
-        acuerdos_previos_data = validated_data.pop("acuerdosPrevios", [])
-        remision_data = validated_data.pop("remision", [])
-        piar_data = validated_data.pop("piar", [])
-        compromiso_padres_data = validated_data.pop("compromisoPadres", [])
-        compromiso_estudiantes_data = validated_data.pop("compromisoEstudiantes", [])
 
-        registro = Registro.objects.create(**validated_data)
+class RegistroSummarySerializer(serializers.ModelSerializer):
+    """
+    Serializer for summarizing Registro model.
+    """
 
-        for archivo_data in acuerdos_previos_data:
-            archivo, created = Archivo.objects.get_or_create(**archivo_data)
-            registro.acuerdosPrevios.add(archivo)
-
-        for archivo_data in remision_data:
-            archivo, created = Archivo.objects.get_or_create(**archivo_data)
-            registro.remision.add(archivo)
-
-        for archivo_data in piar_data:
-            archivo, created = Archivo.objects.get_or_create(**archivo_data)
-            registro.piar.add(archivo)
-
-        for archivo_data in compromiso_padres_data:
-            archivo, created = Archivo.objects.get_or_create(**archivo_data)
-            registro.compromisoPadres.add(archivo)
-
-        for archivo_data in compromiso_estudiantes_data:
-            archivo, created = Archivo.objects.get_or_create(**archivo_data)
-            registro.compromisoEstudiantes.add(archivo)
-
-        return registro
-
-    def update(self, instance, validated_data):
-        instance = super().update(instance, validated_data)
-        return instance
-
-
-class RegistroLatestSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    nombreEstudiante = serializers.CharField()
-    gradoEscolaridad = serializers.CharField()
-    posiblesMotivosDeAtencion = serializers.CharField()
-    lineaDeAtencion = serializers.CharField()
-    tipoDeAtencion = serializers.CharField()
-    estadoCaso = serializers.CharField()
-    fechaProximoSeguimiento = serializers.DateTimeField()
+    nombre_estudiante = serializers.SerializerMethodField()
 
     class Meta:
         model = Registro
+        fields = ["id", "fecha", "resumen", "nombre_estudiante"]
+
+    def get_nombre_estudiante(self, obj):
+        """
+        Get the name of the student associated with the Registro.
+        """
+        return obj.estudiante.nombreEstudiante
+
+
+class EstudiantePreviewSerializer(serializers.ModelSerializer):
+    """
+    Serializer for previewing Estudiante model.
+    """
+
+    estadoCaso = serializers.SerializerMethodField()
+    fechaProximoSeguimiento = serializers.SerializerMethodField()
+    lineaDeAtencion = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Estudiante
         fields = [
             "id",
             "nombreEstudiante",
             "gradoEscolaridad",
-            "posiblesMotivosDeAtencion",
-            "lineaDeAtencion",
-            "tipoDeAtencion",
+            "entidadPrestadoraDeSalud",
+            "telefonoAcudiente",
+            "numeroTelefonoEstudiante",
             "estadoCaso",
             "fechaProximoSeguimiento",
+            "lineaDeAtencion",
         ]
 
+    def get_estadoCaso(self, obj):
+        """
+        Get the case status from the latest Registro.
+        """
+        ultimo_registro = obj.registros.order_by("-fecha").first()
+        return ultimo_registro.estadoCaso if ultimo_registro else None
 
-class RegistroSummarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Registro
-        fields = ["id", "fecha", "resumen", "nombreEstudiante"]
+    def get_fechaProximoSeguimiento(self, obj):
+        """
+        Get the next follow-up date from the latest Registro.
+        """
+        ultimo_registro = obj.registros.order_by("-fecha").first()
+        return ultimo_registro.fechaProximoSeguimiento if ultimo_registro else None
+
+    def get_lineaDeAtencion(self, obj):
+        """
+        Get the line of attention from the latest Registro.
+        """
+        ultimo_registro = obj.registros.order_by("-fecha").first()
+        return ultimo_registro.lineaDeAtencion if ultimo_registro else None

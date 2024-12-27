@@ -2,7 +2,7 @@ import { toast } from "@/hooks/use-toast";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function generateSummary(
-  relatoEntrevistado: string
+  relatoEntrevistado: string,
 ): Promise<string | null> {
   const apiKey = localStorage.getItem("geminiApiKey");
 

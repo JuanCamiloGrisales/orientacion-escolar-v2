@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { EstudiantesContextType } from "../types/registro";
+import { EstudiantesContextType } from "../types/Estudiante";
 
 export const EstudiantesContext = createContext<EstudiantesContextType>({
   estudiantes: [],

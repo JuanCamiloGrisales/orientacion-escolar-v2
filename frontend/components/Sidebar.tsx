@@ -8,11 +8,6 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { label: "Inicio", icon: Home, href: "/" },
-    {
-      label: "Registro de Atención",
-      icon: FileText,
-      href: "/registro-de-atencion",
-    },
     { label: "Analíticas", icon: BarChart, href: "/analiticas" },
   ];
 
