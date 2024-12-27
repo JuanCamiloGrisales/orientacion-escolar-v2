@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormSectionsStore } from "@/stores/formSectionsStore";
+import { useFormSectionsStore } from "@/services/form/stores/formSectionsStore";
 import { FilePreview } from "@/components/FilePreview";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";

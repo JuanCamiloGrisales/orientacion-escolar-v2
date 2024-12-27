@@ -1,20 +1,20 @@
 export const API_ROUTES = {
   BASE: "http://127.0.0.1:8000/api",
   STUDENTS: {
-    BASE: "/estudiantes",
+    BASE: "/estudiantes/",
     PREVIEW: "/estudiante-preview",
     LIST: "/lista-estudiantes",
-    DETAIL: "/estudiantes/:id",
+    DETAIL: "/estudiantes/:id/",
   },
   FILES: {
     DOWNLOAD: "/archivos/:id/download",
   },
   REGISTROS: {
-    BASE: "/registros",
-    DETAIL: "/registros/:id",
+    BASE: "/registros/",
+    DETAIL: "/registros/:id/",
   },
   FIELDS: {
-    EDIT: "/editarcampos",
+    EDIT: "/editarcampos/",
   },
 } as const;
 

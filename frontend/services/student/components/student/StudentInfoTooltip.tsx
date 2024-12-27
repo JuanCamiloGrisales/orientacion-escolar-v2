@@ -9,7 +9,7 @@ import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { StudentFieldsOrganizer } from "./StudentFieldsOrganizer";
-import { useFormSectionsStore } from "@/stores/formSectionsStore";
+import { useFormSectionsStore } from "@/services/form/stores/formSectionsStore";
 import { useEffect } from "react";
 
 export const StudentInfoTooltip = ({
