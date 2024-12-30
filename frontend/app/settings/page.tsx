@@ -1,12 +1,12 @@
 "use client";
 import { useToast } from "@/hooks/use-toast";
 import { useRef, useState } from "react";
-import { refreshAutocompleteData } from "../registro-de-atencion/context/AutocompleteContext";
 import ApiKeyInput from "./components/ApiKeyInput";
 import BackupManagement from "./components/BackupManagement";
 import Header from "./components/Header";
 import RestoreAlertDialog from "./components/RestoreAlertDialog";
 import StudentsUpload from "./components/StudentsUpload";
+import { AutocompleteService } from "@/services/form/AutocompleteService";
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -54,7 +54,7 @@ export default function SettingsPage() {
     } finally {
       setIsUploading(false);
       if (event.target) event.target.value = "";
-      refreshAutocompleteData();
+      await AutocompleteService.refetchData();
     }
   };
 
@@ -109,7 +109,7 @@ export default function SettingsPage() {
       setIsAlertOpen(false);
       setSelectedFile(null);
       if (backupInputRef.current) backupInputRef.current.value = "";
-      refreshAutocompleteData();
+      await AutocompleteService.refetchData();
     }
   };
 
