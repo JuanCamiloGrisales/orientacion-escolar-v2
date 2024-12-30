@@ -96,7 +96,7 @@ export const EditableStudentFields = ({
   const handleSubmit = async () => {
     try {
       setIsSaving(true);
-      await StudentService.updateStudent(studentId, formData, files);
+      await StudentService.updateStudent(studentId, formData);
       toast({
         title: "Información actualizada",
         description:

@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { StudentFormData } from "../types";
+import { useState, useEffect } from "react";
+import { StudentFormData, FormFieldValue } from "../types";
 import { StudentFormService } from "../services/StudentFormService";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { createFormSections } from "../config/formSections";
 
 export function useStudentForm() {
   const [formData, setFormData] = useState<StudentFormData>(
@@ -11,6 +12,29 @@ export function useStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    const initializeFormWithDefaults = async () => {
+      const sections = await createFormSections();
+      const defaultValues = {} as StudentFormData;
+
+      sections.forEach((section) => {
+        section.fields.forEach((field) => {
+          const fieldKey = field.name as keyof StudentFormData;
+          if (field.defaultValue !== undefined && field.type !== "file") {
+            (defaultValues[fieldKey] as string) = field.defaultValue;
+          }
+        });
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        ...defaultValues,
+      }));
+    };
+
+    initializeFormWithDefaults();
+  }, []);
 
   const handleFieldChange = (field: string, value: any) => {
     if (value instanceof File) {

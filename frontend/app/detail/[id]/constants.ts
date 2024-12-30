@@ -52,7 +52,7 @@ export const STUDENT_FIELDS: StudentFieldConfig[] = [
   { key: "tipoDiscapacidad", label: "Tipo de discapacidad", group: "salud" },
   {
     key: "talentoYCapacidadesExepcionales",
-    label: "Talentos y capacidades",
+    label: "Talentos y capacidades excepcionales",
     group: "salud",
   },
 

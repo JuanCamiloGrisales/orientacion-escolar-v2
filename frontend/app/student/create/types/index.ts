@@ -1,3 +1,5 @@
+export type FormFieldValue = string | File[];
+
 export interface StudentFormData {
   nombreEstudiante: string;
   tipoDocumentoEstudiante: string;
@@ -30,7 +32,7 @@ export interface StudentFormData {
   hogarYBienestar: string;
   condicionDiscapacidad: string;
   tipoDiscapacidad: string;
-  talentoYCapacidadesExepcionales: File[];
+  talentoYCapacidadesExepcionales: string;
   piar: File[];
   compromisoPadres: File[];
   compromisoEstudiantes: File[];
