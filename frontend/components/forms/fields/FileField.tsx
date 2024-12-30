@@ -3,13 +3,10 @@ import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { FileFieldProps } from "./types";
-import { DisplayFile, FileOrDisplayFile } from "@/types/file";
 
 export function FileField({ value, onChange, label }: FileFieldProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState<FileOrDisplayFile[]>(
-    Array.isArray(value) ? value : [],
-  );
+  const [files, setFiles] = useState<any>(Array.isArray(value) ? value : []);
 
   useEffect(() => {
     if (Array.isArray(value)) {

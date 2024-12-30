@@ -13,7 +13,9 @@ export function NewRecordCard({ studentId }: NewRecordCardProps) {
   return (
     <Card
       className="w-[300px] h-[300px] group hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 cursor-pointer"
-      onClick={() => router.push(`/registro-de-atencion?studentId=${studentId}`)}
+      onClick={() =>
+        router.push(`/registro-de-atencion?studentId=${studentId}`)
+      }
     >
       <Button
         variant="ghost"

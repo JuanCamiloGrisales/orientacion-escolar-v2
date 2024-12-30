@@ -23,12 +23,10 @@ export class StudentFormService {
     return newData;
   }
 
-  static async submitForm(
-    formData: StudentFormData,
-    files: { [key: string]: File[] },
-  ): Promise<void> {
+  static async submitForm(formData: StudentFormData): Promise<void> {
     const adaptedData = StudentDataAdapter.toAPI(formData);
-    await StudentService.createStudent(adaptedData, files);
+    console.log("Adapted Data", adaptedData);
+    await StudentService.createStudent(adaptedData);
   }
 
   private static handleStudentNameChange(

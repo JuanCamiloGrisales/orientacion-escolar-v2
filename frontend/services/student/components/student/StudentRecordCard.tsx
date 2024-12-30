@@ -17,7 +17,11 @@ interface StudentRecordCardProps {
   onView: (id: number) => void;
 }
 
-export function StudentRecordCard({ record, onEdit, onView }: StudentRecordCardProps) {
+export function StudentRecordCard({
+  record,
+  onEdit,
+  onView,
+}: StudentRecordCardProps) {
   return (
     <ContextMenu>
       <ContextMenuTrigger>

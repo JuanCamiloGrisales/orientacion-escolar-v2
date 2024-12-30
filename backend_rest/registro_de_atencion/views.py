@@ -1,5 +1,6 @@
 import json
 
+from django.db import models
 from django.http import FileResponse, Http404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -170,9 +171,16 @@ class EstudiantePreviewViewSet(viewsets.ReadOnlyModelViewSet):
     A viewset for viewing Estudiante instances in preview mode.
     """
 
-    queryset = Estudiante.objects.all()
     serializer_class = EstudiantePreviewSerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        """
+        Return queryset ordered by the most recently updated records.
+        """
+        return Estudiante.objects.annotate(ultimo_registro=models.Max("registros__created")).order_by(
+            "-ultimo_registro", "-id"
+        )
 
     @action(detail=False, methods=["get"], url_path="preview")
     def preview(self, request):

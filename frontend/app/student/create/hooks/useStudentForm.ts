@@ -8,14 +8,13 @@ export function useStudentForm() {
   const [formData, setFormData] = useState<StudentFormData>(
     {} as StudentFormData,
   );
-  const [files, setFiles] = useState<{ [key: string]: File[] }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
   const handleFieldChange = (field: string, value: any) => {
     if (value instanceof File) {
-      setFiles((prev) => ({
+      setFormData((prev) => ({
         ...prev,
         [field]: [...(prev[field] || []), value],
       }));
@@ -32,12 +31,12 @@ export function useStudentForm() {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      await StudentFormService.submitForm(formData, files);
+      await StudentFormService.submitForm(formData);
       toast({
         title: "Éxito",
         description: "Estudiante creado correctamente",
       });
-      router.push("/students");
+      router.push("/");
     } catch (error) {
       toast({
         title: "Error",

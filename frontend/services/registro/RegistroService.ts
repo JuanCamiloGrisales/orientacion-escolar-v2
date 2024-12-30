@@ -5,14 +5,16 @@ import { RegistroDetalle, RegistroSummary } from "./types";
 import axios from "axios";
 
 export class RegistroService implements IRegistroService {
-  public async getRegistrosByStudent(studentId: string): Promise<RegistroSummary[]> {
+  public async getRegistrosByStudent(
+    studentId: string,
+  ): Promise<RegistroSummary[]> {
     try {
       const response = await axios.get(
-        createApiUrl(API_ROUTES.REGISTROS.BY_STUDENT, { id: studentId })
+        createApiUrl(API_ROUTES.REGISTROS.BY_STUDENT, { id: studentId }),
       );
       return response.data.sort(
-        (a: RegistroSummary, b: RegistroSummary) => 
-          new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+        (a: RegistroSummary, b: RegistroSummary) =>
+          new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
       );
     } catch (error) {
       throw error;

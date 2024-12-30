@@ -16,7 +16,7 @@ export default function StudentDetail() {
   const [studentData, setStudentData] = useState<any>(null);
   const router = useRouter();
   const params = useParams();
-  
+
   const studentId = params?.id?.toString() || "";
 
   useEffect(() => {
