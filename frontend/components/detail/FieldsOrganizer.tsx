@@ -1,10 +1,10 @@
 "use client";
 
 import { useFormSectionsStore as useStudentFormSectionsStore } from "@/services/form/stores/studentFormSectionsStore";
-import { useFormSectionsStore as useRecordFormSectionsStore } from "@/services/form/stores/registroFormSectionStore";
 import { FilePreview } from "@/components/FilePreview";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RecordFieldsOrganizer } from "./record/RecordFieldsOrganizer";
 import { BackendFile } from "@/types/file";
 
 interface FieldsOrganizerProps {
@@ -18,18 +18,17 @@ export const FieldsOrganizer = ({
   layout,
   mode,
 }: FieldsOrganizerProps) => {
-  const useFormSections =
-    mode === "student"
-      ? useStudentFormSectionsStore
-      : useRecordFormSectionsStore;
+  // If it's a record, use the specialized component
+  if (mode === "record") {
+    return <RecordFieldsOrganizer data={data} layout={layout} />;
+  }
 
-  const { sections, initialize } = useFormSections();
+  const { sections, initialize } = useStudentFormSectionsStore();
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  // Si no hay secciones, mostrar skeleton
   if (!sections.length) {
     return (
       <div className="grid gap-4">
@@ -40,16 +39,7 @@ export const FieldsOrganizer = ({
     );
   }
 
-  // Mapping de campos del backend a campos del formulario
-  // const fieldMapping: { [key: string]: string } = {
-  //   epsEstudiante: "entidadPrestadoraDeSalud",
-  //   // parentescoAcudiente: "parentesco",
-  //   // ocupacionAcudiente: "ocupacion",
-  // };
-
   const getFieldValue = (fieldName: string) => {
-    // Si existe un mapping para el campo, usar ese
-    // const mappedField = fieldMapping[fieldName] || fieldName;
     const mappedField = fieldName;
     return data[mappedField];
   };
@@ -112,7 +102,6 @@ export const FieldsOrganizer = ({
       }`}
     >
       {sections.map((section) => {
-        // Solo mostrar secciones que tengan al menos un campo con valor
         const hasData = section.fields.some(
           (field) => getFieldValue(field.name) !== undefined,
         );
