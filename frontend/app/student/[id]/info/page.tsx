@@ -1,11 +1,10 @@
 "use client";
 
+import { Header } from "@/components/detail/Header";
 import { EditableStudentFields } from "@/services/student/components/student/EditableStudentFields";
-import { StudentFieldsOrganizer } from "@/services/student/components/student/StudentFieldsOrganizer";
-import { Button } from "@/components/ui/button";
+import { FieldsOrganizer } from "@/components/detail/FieldsOrganizer";
 import { StudentService } from "@/services/student/StudentService";
-import { ArrowLeft, Download, Pencil, Printer } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const useStudentId = () => {
@@ -16,7 +15,6 @@ const useStudentId = () => {
 export default function StudentFullInfoPage() {
   const [studentData, setStudentData] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const router = useRouter();
   const studentId = useStudentId();
 
   const fetchData = async () => {
@@ -47,52 +45,12 @@ export default function StudentFullInfoPage() {
   return (
     <div className="h-full w-full overflow-auto bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30">
       <div className="w-full p-8">
-        <header className="flex flex-col gap-8 mb-12">
-          <div className="flex justify-between items-center">
-            <Button
-              variant="ghost"
-              className="gap-2 hover:bg-white"
-              onClick={() => router.back()}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Volver
-            </Button>
-            <div className="flex gap-2">
-              {!isEditing && (
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() => setIsEditing(true)}
-                >
-                  <Pencil className="w-4 h-4" />
-                  Editar Información
-                </Button>
-              )}
-              {!isEditing && (
-                <>
-                  <Button variant="outline" className="gap-2">
-                    <Download className="w-4 h-4" />
-                    Exportar PDF
-                  </Button>
-                  <Button variant="outline" className="gap-2">
-                    <Printer className="w-4 h-4" />
-                    Imprimir
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl shadow-xl p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              {studentData.nombreEstudiante}
-            </h1>
-            <p className="text-gray-500">
-              {studentData.entidadPrestadoraDeSalud} · Grado{" "}
-              {studentData.gradoEscolaridad}
-            </p>
-          </div>
-        </header>
+        <Header
+          mode="student"
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          data={studentData}
+        />
 
         {isEditing ? (
           <EditableStudentFields
@@ -105,7 +63,7 @@ export default function StudentFullInfoPage() {
             }}
           />
         ) : (
-          <StudentFieldsOrganizer studentData={studentData} layout="full" />
+          <FieldsOrganizer mode="student" data={studentData} layout="full" />
         )}
       </div>
     </div>

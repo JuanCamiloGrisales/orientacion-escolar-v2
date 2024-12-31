@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { StudentService } from "@/services/student/StudentService";
-import { useFormSectionsStore } from "@/services/form/stores/formSectionsStore";
+import { useFormSectionsStore } from "@/services/form/stores/studentFormSectionsStore";
 import { Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BackendFile, DisplayFile } from "@/types/file";

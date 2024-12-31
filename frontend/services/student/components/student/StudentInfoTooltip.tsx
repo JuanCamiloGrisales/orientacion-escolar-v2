@@ -8,9 +8,9 @@ import {
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { StudentFieldsOrganizer } from "./StudentFieldsOrganizer";
-import { useFormSectionsStore } from "@/services/form/stores/formSectionsStore";
+import { useFormSectionsStore } from "@/services/form/stores/studentFormSectionsStore";
 import { useEffect } from "react";
+import { FieldsOrganizer } from "@/components/detail/FieldsOrganizer";
 
 export const StudentInfoTooltip = ({
   studentId,
@@ -47,7 +47,7 @@ export const StudentInfoTooltip = ({
         className="w-[500px] p-6 bg-white/95 backdrop-blur-sm"
       >
         <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-          <StudentFieldsOrganizer studentData={studentData} layout="compact" />
+          <FieldsOrganizer mode="student" data={studentData} layout="compact" />
         </div>
         <Button
           variant="link"

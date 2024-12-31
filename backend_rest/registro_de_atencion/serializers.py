@@ -35,9 +35,17 @@ class RegistroSerializer(serializers.ModelSerializer):
     acuerdosPrevios = ArchivoSerializer(many=True, read_only=True)
     remision = ArchivoSerializer(many=True, read_only=True)
 
+    nombre_estudiante = serializers.SerializerMethodField()
+
     class Meta:
         model = Registro
         fields = "__all__"
+
+    def get_nombre_estudiante(self, obj):
+        """
+        Get the name of the student associated with the Registro.
+        """
+        return obj.estudiante.nombreEstudiante.title()
 
 
 class RegistroSummarySerializer(serializers.ModelSerializer):

@@ -35,4 +35,5 @@ export interface RegistroDetalle {
   resumenRelato: string;
   estudiante_snapshot: Record<string, any>;
   estudiante: number;
+  nombre_estudiante: string;
 }

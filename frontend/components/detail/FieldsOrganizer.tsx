@@ -1,22 +1,29 @@
 "use client";
 
-import { useFormSectionsStore } from "@/services/form/stores/formSectionsStore";
+import { useFormSectionsStore as useStudentFormSectionsStore } from "@/services/form/stores/studentFormSectionsStore";
+import { useFormSectionsStore as useRecordFormSectionsStore } from "@/services/form/stores/registroFormSectionStore";
 import { FilePreview } from "@/components/FilePreview";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BackendFile } from "@/types/file";
-import { File } from "lucide-react";
 
-interface StudentFieldsOrganizerProps {
-  studentData: any;
+interface FieldsOrganizerProps {
+  data: any;
   layout: "compact" | "full";
+  mode: "student" | "record";
 }
 
-export const StudentFieldsOrganizer = ({
-  studentData,
+export const FieldsOrganizer = ({
+  data,
   layout,
-}: StudentFieldsOrganizerProps) => {
-  const { sections, initialize } = useFormSectionsStore();
+  mode,
+}: FieldsOrganizerProps) => {
+  const useFormSections =
+    mode === "student"
+      ? useStudentFormSectionsStore
+      : useRecordFormSectionsStore;
+
+  const { sections, initialize } = useFormSections();
 
   useEffect(() => {
     initialize();
@@ -34,16 +41,17 @@ export const StudentFieldsOrganizer = ({
   }
 
   // Mapping de campos del backend a campos del formulario
-  const fieldMapping: { [key: string]: string } = {
-    epsEstudiante: "entidadPrestadoraDeSalud",
-    // parentescoAcudiente: "parentesco",
-    // ocupacionAcudiente: "ocupacion",
-  };
+  // const fieldMapping: { [key: string]: string } = {
+  //   epsEstudiante: "entidadPrestadoraDeSalud",
+  //   // parentescoAcudiente: "parentesco",
+  //   // ocupacionAcudiente: "ocupacion",
+  // };
 
   const getFieldValue = (fieldName: string) => {
     // Si existe un mapping para el campo, usar ese
-    const mappedField = fieldMapping[fieldName] || fieldName;
-    return studentData[mappedField];
+    // const mappedField = fieldMapping[fieldName] || fieldName;
+    const mappedField = fieldName;
+    return data[mappedField];
   };
 
   const renderValue = (field: any, value: any) => {
@@ -100,7 +108,7 @@ export const StudentFieldsOrganizer = ({
   return (
     <div
       className={`grid gap-8 ${
-        layout === "compact" ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
+        layout === "compact" ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 "
       }`}
     >
       {sections.map((section) => {

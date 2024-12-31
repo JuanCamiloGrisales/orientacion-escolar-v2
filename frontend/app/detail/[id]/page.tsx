@@ -1,71 +1,70 @@
-import DetailClient from "./DetailClient";
+"use client";
 
-type Props = {
-  params: {
-    id: string;
-  };
+import { Header } from "@/components/detail/Header";
+import { registroService } from "@/services/registro/RegistroService";
+import { EditableStudentFields } from "@/services/student/components/student/EditableStudentFields";
+import { FieldsOrganizer } from "@/components/detail/FieldsOrganizer";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
+const useRecordId = () => {
+  const pathname = usePathname();
+  return pathname?.split("/")[2] || "";
 };
 
-export default async function DetailPage({ params }: Props) {
-  const { id } = await params;
-  return <DetailClient id={id} />;
-}
+export default function StudentFullInfoPage() {
+  const [recordData, setRecordData] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const recordId = useRecordId();
 
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
-import { LoadingSkeleton } from "./components/LoadingSkeleton";
-import { RegistroContent } from "./components/RegistroContent";
-import { StudentInfoAccordion } from "./components/StudentInfoAccordion";
-import { useRegistroDetail } from "./hooks/useRegistroDetail";
+  const fetchData = async () => {
+    if (!recordId) return;
+    try {
+      const data = await registroService.getRegistro(recordId);
+      setRecordData(data);
+    } catch (error) {
+      console.error("Error fetching record data:", error);
+    }
+  };
 
-function DetailContent({ id }: { id: string }) {
-  const { registro, currentStudent, loading, studentLoading } =
-    useRegistroDetail(id);
+  useEffect(() => {
+    fetchData();
+  }, [recordId]);
 
-  if (loading) {
+  if (!recordData) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-20 px-4">
-          <div className="grid grid-cols-[300px_1fr] gap-8">
-            <div className="space-y-4">
-              <Skeleton className="h-[200px] w-full rounded-lg" />
-              <Skeleton className="h-[200px] w-full rounded-lg" />
-            </div>
-            <LoadingSkeleton />
-          </div>
+      <div className="h-full w-full flex items-center justify-center">
+        <div className="animate-pulse space-y-4">
+          <div className="h-12 w-48 bg-gray-200 rounded-full" />
+          <div className="h-8 w-32 bg-gray-200 rounded-full" />
         </div>
       </div>
     );
   }
 
-  if (!registro) {
-    return <div>No se encontró el registro</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto py-20 px-4">
-        <div className="grid grid-cols-[300px_1fr] gap-8">
-          {/* Left sidebar */}
-          <div className="space-y-4">
-            <StudentInfoAccordion
-              student={registro.estudiante_snapshot}
-              title="Información del Estudiante"
-              subtitle="Al momento del registro"
-              variant="snapshot"
-            />
-            <StudentInfoAccordion
-              student={currentStudent}
-              title="Información Actual"
-              loading={studentLoading}
-              variant="current"
-            />
-          </div>
+    <div className="h-full w-full overflow-auto bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30">
+      <div className="w-full p-8">
+        <Header
+          mode="record"
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          data={recordData}
+        />
 
-          {/* Main content */}
-          <RegistroContent registro={registro} />
-        </div>
+        {isEditing ? (
+          <EditableStudentFields
+            studentData={recordData}
+            studentId={recordId}
+            onCancel={() => setIsEditing(false)}
+            onSave={() => {
+              setIsEditing(false);
+              fetchData();
+            }}
+          />
+        ) : (
+          <FieldsOrganizer mode="record" data={recordData} layout="full" />
+        )}
       </div>
     </div>
   );
