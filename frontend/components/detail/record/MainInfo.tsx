@@ -10,7 +10,10 @@ export const MainInfo = ({ data }: MainInfoProps) => {
     { label: "Resumen", value: data.resumen },
     { label: "Observaciones", value: data.observaciones },
     { label: "Relato del Entrevistado", value: data.relatoEntrevistado },
-    { label: "Expectativas del Entrevistado", value: data.expectativasEntrevistado },
+    {
+      label: "Expectativas del Entrevistado",
+      value: data.expectativasEntrevistado,
+    },
     { label: "Procesos de Convivencia", value: data.procesosConvivencia },
   ];
 
@@ -30,7 +33,11 @@ export const MainInfo = ({ data }: MainInfoProps) => {
           <div key={field.label} className="space-y-2">
             <p className="font-medium text-sm text-gray-500">{field.label}</p>
             <div className="prose prose-sm max-w-none bg-gray-50/50 p-4 rounded-xl">
-              <div dangerouslySetInnerHTML={{ __html: field.value || "No especificado" }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: field.value || "No especificado",
+                }}
+              />
             </div>
           </div>
         ))}

@@ -18,11 +18,7 @@ export const StudentSnapshot = ({ data }: StudentSnapshotProps) => {
       </div>
 
       <div className="space-y-4">
-        <FieldsOrganizer 
-          mode="student" 
-          data={data} 
-          layout="compact" 
-        />
+        <FieldsOrganizer mode="student" data={data} layout="compact" />
       </div>
     </div>
   );

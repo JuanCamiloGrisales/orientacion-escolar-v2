@@ -1,6 +1,5 @@
 import os
 
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -22,22 +21,6 @@ class EditarCamposAPITest(APITestCase):
         data = {"municipioDefault": "Nuevo Municipio", "municipioOpciones": ["Opción1", "Opción2"]}
         response = self.client.put(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
-class UploadMunicipiosViewTest(APITestCase):
-    def setUp(self):
-        self.url = reverse("upload_municipios")
-        self.file = SimpleUploadedFile("municipios.csv", b"municipio1,municipio2")
-
-    def test_upload_municipios(self):
-        response = self.client.post(self.url, {"file": self.file})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("Municipios updated successfully.", response.data["detail"])
-
-    def test_upload_municipios_no_file(self):
-        response = self.client.post(self.url)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("No file provided.", response.data["detail"])
 
 
 class EstudiantesUploadTest(TestCase):

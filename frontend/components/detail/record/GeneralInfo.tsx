@@ -7,13 +7,16 @@ interface GeneralInfoProps {
 
 export const GeneralInfo = ({ data }: GeneralInfoProps) => {
   const fields = [
-    { label: "Fecha", value: new Date(data.fecha).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric"
-    })},
+    {
+      label: "Fecha",
+      value: new Date(data.fecha).toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      }),
+    },
     { label: "Remitido Por", value: data.remitidoPor },
     { label: "Nombre del Remitente", value: data.nombreRemitidoPor },
     { label: "Posibles Motivos", value: data.posiblesMotivosDeAtencion },

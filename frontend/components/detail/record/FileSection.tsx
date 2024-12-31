@@ -7,7 +7,10 @@ interface FileSectionProps {
   remision: ArchivoRegistro[];
 }
 
-export const FileSection = ({ acuerdosPrevios, remision }: FileSectionProps) => {
+export const FileSection = ({
+  acuerdosPrevios,
+  remision,
+}: FileSectionProps) => {
   const formatFiles = (files: ArchivoRegistro[], fieldName: string) =>
     files.map((file) => ({
       name: `${fieldName}_${file.id}`,

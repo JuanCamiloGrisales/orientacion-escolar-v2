@@ -10,7 +10,10 @@ interface RecordFieldsOrganizerProps {
   layout: "compact" | "full";
 }
 
-export const RecordFieldsOrganizer = ({ data, layout }: RecordFieldsOrganizerProps) => {
+export const RecordFieldsOrganizer = ({
+  data,
+  layout,
+}: RecordFieldsOrganizerProps) => {
   if (layout === "compact") {
     return <MainInfo data={data} />;
   }
