@@ -1,18 +1,18 @@
 import { FilePreview } from "@/components/FilePreview";
 import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { FileFieldProps } from "./types";
 
-export function FileField({ value, onChange, label }: FileFieldProps) {
+export function FileField({
+  value = { files: [], backendFiles: [], eliminated: [] },
+  onChange,
+  label,
+  onRemoveBackendFile,
+  onRemoveFrontendFile,
+  eliminatedFiles = [], // Add this line
+}: FileFieldProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState<any>(Array.isArray(value) ? value : []);
-
-  useEffect(() => {
-    if (Array.isArray(value)) {
-      setFiles(value);
-    }
-  }, [value]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -43,16 +43,10 @@ export function FileField({ value, onChange, label }: FileFieldProps) {
   };
 
   const handleNewFiles = (newFiles: File[]) => {
-    const updatedFiles = [...files, ...newFiles];
-    setFiles(updatedFiles);
-    onChange(updatedFiles);
-  };
-
-  const handleRemove = (index: number) => {
-    const newFiles = [...files];
-    newFiles.splice(index, 1);
-    setFiles(newFiles);
-    onChange(newFiles);
+    onChange({
+      ...value,
+      files: [...value.files, ...newFiles],
+    });
   };
 
   return (
@@ -107,9 +101,14 @@ export function FileField({ value, onChange, label }: FileFieldProps) {
         </label>
       </motion.div>
 
-      {Array.isArray(files) && files.length > 0 && (
-        <FilePreview files={files} onRemove={handleRemove} />
-      )}
+      <FilePreview
+        mode="edit"
+        files={value.files}
+        backendFiles={value.backendFiles}
+        onRemoveBackendFile={onRemoveBackendFile}
+        onRemoveFrontendFile={onRemoveFrontendFile}
+        eliminatedFiles={eliminatedFiles}
+      />
     </div>
   );
 }

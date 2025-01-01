@@ -47,12 +47,31 @@ export class StudentService {
       // Add all form fields
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          if (Array.isArray(value)) {
-            // Handle file arrays
-            value.forEach((file) => {
-              form.append(key, file);
-            });
+          // Handle file fields
+          if (
+            value &&
+            typeof value === "object" &&
+            ("files" in value || "eliminated" in value)
+          ) {
+            // Create the structure for file fields
+            const fileFieldData: any = {};
+
+            // Add eliminated array if it exists
+            if (value.eliminated && value.eliminated.length > 0) {
+              fileFieldData.eliminated = value.eliminated;
+            }
+
+            // Append the JSON structure
+            form.append(key, JSON.stringify(fileFieldData));
+
+            // Append new files separately
+            if (value.files) {
+              value.files.forEach((file: File) => {
+                form.append(key, file);
+              });
+            }
           } else {
+            // Handle regular fields
             form.append(key, value.toString());
           }
         }

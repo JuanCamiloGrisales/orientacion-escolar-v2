@@ -94,10 +94,10 @@ class RegistroViewSetTest(BaseTestCase):
             registro.remision.add(file)
 
         # Prepare update data with file deletion
-        update_data = {"remision": {"eliminated": [files[0].id, files[1].id]}}
+        data = {"remision": [json.dumps({"eliminated": [files[0].id, files[1].id]})]}
 
         url = reverse("registro-detail", kwargs={"pk": registro.id})
-        response = self.client.patch(url, update_data, format="json")
+        response = self.client.patch(url, data, format="multipart")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         registro.refresh_from_db()
@@ -115,23 +115,17 @@ class RegistroViewSetTest(BaseTestCase):
         for file in initial_files:
             registro.remision.add(file)
 
-        # Prepare update data
+        # Prepare new file and data
         new_file = SimpleUploadedFile("new_file.txt", b"new content", content_type="text/plain")
 
-        # Use FormData format with json_data field
-        data = {"json_data": json.dumps({"remision": {"eliminated": [initial_files[0].id]}})}
-
-        # Add new file to the request
-        data["remision"] = new_file
+        data = {"remision": [json.dumps({"eliminated": [initial_files[0].id]}), new_file]}
 
         url = reverse("registro-detail", kwargs={"pk": registro.id})
-        response = self.client.patch(url, data=data, format="multipart")
+        response = self.client.patch(url, data, format="multipart")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         registro.refresh_from_db()
-        # Should have 2 files: 1 remaining initial file + 1 new file
         self.assertEqual(registro.remision.count(), 2)
-        # Verify the deleted file is gone
         self.assertEqual(Archivo.objects.filter(id=initial_files[0].id).count(), 0)
 
 
@@ -206,12 +200,15 @@ class EstudianteViewSetTest(BaseTestCase):
         self.assertEqual(len(response.data), 1)
 
     def test_update_estudiante(self):
-        """
-        Test updating an Estudiante instance.
-        """
+        """Test updating an Estudiante instance."""
         url = reverse("estudiante-detail", kwargs={"pk": self.estudiante.id})
-        updated_data = {**self.estudiante_data, "gradoEscolaridad": "Décimo"}
-        response = self.client.put(url, updated_data, format="json")
+        updated_data = {
+            "nombreEstudiante": "Test Student",
+            "gradoEscolaridad": "Décimo",
+            "tipoDocumentoEstudiante": "CC",
+            "numeroDocumentoEstudiante": "123456789",
+        }
+        response = self.client.patch(url, updated_data, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.estudiante.refresh_from_db()
         self.assertEqual(self.estudiante.gradoEscolaridad, "Décimo")
@@ -224,10 +221,10 @@ class EstudianteViewSetTest(BaseTestCase):
             self.estudiante.piar.add(file)
 
         # Prepare update data with file deletion
-        update_data = {"piar": {"eliminated": [files[0].id, files[1].id]}}
+        data = {"piar": [json.dumps({"eliminated": [files[0].id, files[1].id]})]}
 
         url = reverse("estudiante-detail", kwargs={"pk": self.estudiante.id})
-        response = self.client.patch(url, update_data, format="json")
+        response = self.client.patch(url, data, format="multipart")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.estudiante.refresh_from_db()
@@ -245,20 +242,23 @@ class EstudianteViewSetTest(BaseTestCase):
         for file in compromiso_files:
             self.estudiante.compromisoPadres.add(file)
 
-        # Prepare update data
-        update_data = {
-            "piar": {"eliminated": [piar_files[0].id]},
-            "compromisoPadres": {"eliminated": [compromiso_files[0].id]},
+        # Create new files to add
+        new_piar_file = SimpleUploadedFile("new_piar.txt", b"new content", content_type="text/plain")
+        new_compromiso_file = SimpleUploadedFile("new_compromiso.txt", b"new content", content_type="text/plain")
+
+        # Prepare multipart data
+        data = {
+            "piar": [json.dumps({"eliminated": [piar_files[0].id]}), new_piar_file],
+            "compromisoPadres": [json.dumps({"eliminated": [compromiso_files[0].id]}), new_compromiso_file],
         }
 
         url = reverse("estudiante-detail", kwargs={"pk": self.estudiante.id})
-        response = self.client.patch(url, update_data, format="json")
+        response = self.client.patch(url, data, format="multipart")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.estudiante.refresh_from_db()
-        self.assertEqual(self.estudiante.piar.count(), 1)
-        self.assertEqual(self.estudiante.compromisoPadres.count(), 1)
-        self.assertEqual(Archivo.objects.filter(id__in=[piar_files[0].id, compromiso_files[0].id]).count(), 0)
+        self.assertEqual(self.estudiante.piar.count(), 2)  # 1 original + 1 new
+        self.assertEqual(self.estudiante.compromisoPadres.count(), 2)  # 1 original + 1 new
 
 
 class EstudiantePreviewViewSetTest(BaseTestCase):

@@ -6,6 +6,7 @@ import { AutocompleteField } from "./AutocompleteField";
 import { FileField } from "./FileField";
 import { RichTextField } from "./RichTextField";
 import type { FormField } from "./types";
+import { FileHandlingProps } from "@/types/file";
 
 interface FormFieldProps {
   value: string;
@@ -161,15 +162,20 @@ export function FormField({
   );
 }
 
+interface FormFieldComponentProps extends FileHandlingProps {
+  field: FormField;
+  value: any;
+  onChange: (value: any) => void;
+}
+
 export function FormFieldComponent({
   field,
   value,
   onChange,
-}: {
-  field: FormField;
-  value: any;
-  onChange: (value: any) => void;
-}) {
+  onRemoveBackendFile,
+  onRemoveFrontendFile,
+  eliminatedFiles = [], // Add this line with default value
+}: FormFieldComponentProps) {
   const renderField = () => {
     switch (field.type) {
       case "richtext":
@@ -182,7 +188,14 @@ export function FormFieldComponent({
         );
       case "file":
         return (
-          <FileField value={value} onChange={onChange} label={field.label} />
+          <FileField
+            value={value}
+            onChange={onChange}
+            label={field.label}
+            onRemoveBackendFile={onRemoveBackendFile}
+            onRemoveFrontendFile={onRemoveFrontendFile}
+            eliminatedFiles={eliminatedFiles}
+          />
         );
       case "datetime":
         const formattedValue = value

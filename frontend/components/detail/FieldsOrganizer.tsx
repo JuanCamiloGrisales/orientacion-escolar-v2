@@ -49,20 +49,7 @@ export const FieldsOrganizer = ({
 
     if (field.type === "file" && Array.isArray(value)) {
       return value.length > 0 ? (
-        <FilePreview
-          files={value.map((file: BackendFile) => ({
-            name: `${field.name}_${file.id}`,
-            url: file.archivo,
-            isBackendFile: true,
-            id: file.id,
-            type: file.archivo.toLowerCase().endsWith(".pdf")
-              ? "application/pdf"
-              : "application/octet-stream",
-            size: 0,
-          }))}
-          onRemove={() => {}}
-          readOnly
-        />
+        <FilePreview mode="read" backendFiles={value} />
       ) : (
         "Sin archivos"
       );

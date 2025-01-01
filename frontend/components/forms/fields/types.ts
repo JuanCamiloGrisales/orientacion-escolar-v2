@@ -1,3 +1,5 @@
+import { BackendFile, FileFieldValue, FileHandlingProps } from "@/types/file";
+
 export interface FormSection {
   id: string | number;
   title: string;
@@ -19,6 +21,10 @@ export interface FormField {
     | "file";
   defaultValue?: string;
   options?: string[];
+  fileConfig?: {
+    maxFiles?: number;
+    acceptedTypes?: string[];
+  };
 }
 
 export interface BaseFieldProps {
@@ -40,7 +46,8 @@ export interface RichTextFieldProps extends BaseFieldProps {
   config?: any;
 }
 
-export interface FileFieldProps extends BaseFieldProps {
+export interface FileFieldProps extends BaseFieldProps, FileHandlingProps {
   accept?: string[];
   maxFiles?: number;
+  value: FileFieldValue;
 }

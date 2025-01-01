@@ -34,48 +34,33 @@ class RegistroViewSet(viewsets.ModelViewSet):
         return self.serializer_class
 
     def update(self, request, *args, **kwargs):
-        """
-        Update an existing instance with the provided request data.
-        This method handles the following:
-        - Parsing JSON data if present in the request.
-        - Handling file fields for 'acuerdosPrevios' and 'remision', including file deletions and new file additions.
-        - Validating and saving the updated instance using the serializer.
-        Args:
-            request (Request): The request object containing data for the update.
-            *args: Additional positional arguments.
-            **kwargs: Additional keyword arguments.
-        Returns:
-            Response: A response object containing the serialized data of the updated instance or an error message.
-        Raises:
-            Exception: If any error occurs during the update process, a 400 BAD REQUEST response is returned with the error message.
-        """
         try:
             instance = self.get_object()
-
-            # Parse JSON data if present
-            if "json_data" in request.data:
-                request.data._mutable = True
-                request.data.update(json.loads(request.data["json_data"]))
-                request.data._mutable = False
-
-            # Handle file fields
             file_fields = ["acuerdosPrevios", "remision"]
 
             for field in file_fields:
-                field_data = request.data.get(field, {})
+                # Get all items for the field
+                field_data = request.data.getlist(field, [])
 
-                # Handle file deletions
-                if isinstance(field_data, dict) and "eliminated" in field_data:
-                    eliminated_ids = field_data["eliminated"]
-                    getattr(instance, field).remove(*eliminated_ids)
-                    Archivo.objects.filter(id__in=eliminated_ids).delete()
+                if field_data:
+                    # First item might be JSON for eliminations
+                    if isinstance(field_data[0], str):
+                        try:
+                            elimination_data = json.loads(field_data[0])
+                            if "eliminated" in elimination_data:
+                                eliminated_ids = elimination_data["eliminated"]
+                                getattr(instance, field).remove(*eliminated_ids)
+                                Archivo.objects.filter(id__in=eliminated_ids).delete()
+                        except json.JSONDecodeError:
+                            pass
 
-                # Handle new files
-                new_files = request.FILES.getlist(field, [])
-                for file in new_files:
-                    archivo = Archivo.objects.create(archivo=file)
-                    getattr(instance, field).add(archivo)
+                    # Process any files in the field_data
+                    for item in field_data:
+                        if hasattr(item, "content_type"):  # It's a file
+                            archivo = Archivo.objects.create(archivo=item)
+                            getattr(instance, field).add(archivo)
 
+            # Update other fields
             serializer = self.get_serializer(instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -199,25 +184,31 @@ class EstudianteViewSet(viewsets.ModelViewSet):
         """
         try:
             instance = self.get_object()
-
-            # Handle file fields
             file_fields = ["piar", "compromisoPadres", "compromisoEstudiantes"]
 
             for field in file_fields:
-                field_data = request.data.get(field, {})
+                # Get all items for the field
+                field_data = request.data.getlist(field, [])
 
-                # Handle file deletions
-                if isinstance(field_data, dict) and "eliminated" in field_data:
-                    eliminated_ids = field_data["eliminated"]
-                    getattr(instance, field).remove(*eliminated_ids)
-                    Archivo.objects.filter(id__in=eliminated_ids).delete()
+                if field_data:
+                    # First item might be JSON for eliminations
+                    if isinstance(field_data[0], str):
+                        try:
+                            elimination_data = json.loads(field_data[0])
+                            if "eliminated" in elimination_data:
+                                eliminated_ids = elimination_data["eliminated"]
+                                getattr(instance, field).remove(*eliminated_ids)
+                                Archivo.objects.filter(id__in=eliminated_ids).delete()
+                        except json.JSONDecodeError:
+                            pass
 
-                # Handle new files
-                new_files = request.FILES.getlist(field, [])
-                for file in new_files:
-                    archivo = Archivo.objects.create(archivo=file)
-                    getattr(instance, field).add(archivo)
+                    # Process any files in the field_data
+                    for item in field_data:
+                        if hasattr(item, "content_type"):  # It's a file
+                            archivo = Archivo.objects.create(archivo=item)
+                            getattr(instance, field).add(archivo)
 
+            # Update other fields
             serializer = self.get_serializer(instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()

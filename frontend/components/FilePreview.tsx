@@ -1,17 +1,14 @@
-"use client";
-
 import { FileService } from "@/services/files/FileService";
-import { DisplayFile } from "@/types/file";
-import { AnimatePresence, motion } from "framer-motion";
+import { BackendFile, FileHandlingProps } from "@/types/file";
+import { motion, AnimatePresence } from "framer-motion";
 import { File, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { PDFViewer } from "./PDFViewer";
 import { Button } from "./ui/button";
 
-interface FilePreviewProps {
-  files: (File | DisplayFile)[];
-  onRemove: (index: number) => void;
-  readOnly?: boolean;
+interface FilePreviewProps extends FileHandlingProps {
+  files?: File[];
+  backendFiles?: BackendFile[];
 }
 
 const getFileNameFromUrl = (url: string): string => {
@@ -23,148 +20,133 @@ const getFileNameFromUrl = (url: string): string => {
 };
 
 export const FilePreview = ({
-  files,
-  onRemove,
-  readOnly = false,
+  mode = "edit",
+  files = [],
+  backendFiles = [],
+  onRemoveBackendFile,
+  onRemoveFrontendFile,
+  eliminatedFiles = [],
 }: FilePreviewProps) => {
-  const [selectedPDF, setSelectedPDF] = useState<string | Blob | null>(null);
-  const [loading, setLoading] = useState(false);
-  const pdfViewerRef = useRef<HTMLDivElement>(null);
+  const [selectedPDF, setSelectedPDF] = useState<string | null>(null);
 
-  const handlePreview = async (file: File | DisplayFile) => {
-    if ("isBackendFile" in file) {
-      try {
-        setLoading(true);
-        const blob = await FileService.downloadFile(file.id!);
-        setSelectedPDF(blob);
-      } catch (error) {
-        console.error("Error loading PDF:", error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setSelectedPDF(URL.createObjectURL(file));
+  const handlePDFPreview = async (fileId: number) => {
+    try {
+      const blob = await FileService.downloadFile(fileId);
+      const url = URL.createObjectURL(blob);
+      setSelectedPDF(url);
+    } catch (error) {
+      console.error("Error loading PDF:", error);
     }
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      pdfViewerRef.current &&
-      !pdfViewerRef.current.contains(event.target as Node)
-    ) {
-      URL.revokeObjectURL(selectedPDF!);
-      setSelectedPDF(null);
-    }
+  const isPDF = (fileName: string) => fileName.toLowerCase().endsWith(".pdf");
+
+  const renderBackendFiles = () => {
+    if (!backendFiles?.length) return null;
+
+    return backendFiles
+      .filter((file) => !eliminatedFiles.includes(file.id)) // Filter out eliminated files
+      .map((file) => {
+        const fileName = getFileNameFromUrl(file.archivo);
+        return (
+          <motion.div
+            key={`backend-${file.id}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative group bg-white p-3 rounded-xl shadow-sm hover:shadow-md 
+                     transition-all duration-200 flex items-center gap-3"
+          >
+            <div className="p-2 bg-indigo-50 rounded-lg">
+              <File className="w-5 h-5 text-indigo-500" />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-700 truncate">
+                {fileName}
+              </p>
+            </div>
+
+            <div className="flex gap-1">
+              {isPDF(fileName) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handlePDFPreview(file.id)}
+                  className="opacity-0 group-hover:opacity-100"
+                >
+                  👁️
+                </Button>
+              )}
+
+              {mode === "edit" && onRemoveBackendFile && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onRemoveBackendFile(file.id)}
+                  className="opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        );
+      });
   };
 
-  useEffect(() => {
-    if (selectedPDF) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      if (selectedPDF instanceof Blob) {
-        URL.revokeObjectURL(URL.createObjectURL(selectedPDF));
-      }
-    };
-  }, [selectedPDF]);
+  const renderFrontendFiles = () => {
+    if (!files?.length) return null;
+    return files.map((file, index) => (
+      <motion.div
+        key={`frontend-${index}`}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative group bg-white p-3 rounded-xl shadow-sm hover:shadow-md 
+                 transition-all duration-200 flex items-center gap-3"
+      >
+        <div className="p-2 bg-indigo-50 rounded-lg">
+          <File className="w-5 h-5 text-indigo-500" />
+        </div>
 
-  // Función de utilidad para verificar si es un archivo PDF
-  const isPDFFile = (file: File | DisplayFile) => {
-    if ("isBackendFile" in file) {
-      return file.url?.toLowerCase()?.endsWith(".pdf") ?? false;
-    }
-    return file.name?.toLowerCase()?.endsWith(".pdf") ?? false;
-  };
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-700 truncate">
+            {file.name}
+          </p>
+          <p className="text-xs text-gray-400">
+            {(file.size / (1024 * 1024)).toFixed(2)} MB
+          </p>
+        </div>
 
-  // Función para obtener el nombre del archivo
-  const getFileName = (file: File | DisplayFile) => {
-    if ("isBackendFile" in file) {
-      return getFileNameFromUrl(file.url);
-    }
-    return file.name || "Archivo sin nombre";
-  };
-
-  // Función para obtener el tamaño del archivo
-  const getFileSize = (file: File | DisplayFile) => {
-    if ("isBackendFile" in file) {
-      return null; // El backend no proporciona tamaño
-    }
-    return (file.size / 1024 / 1024).toFixed(2);
+        {mode === "edit" && onRemoveFrontendFile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onRemoveFrontendFile(index)}
+            className="opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </motion.div>
+    ));
   };
 
   return (
-    <>
+    <div className="grid grid-cols-1 gap-2 mt-4">
       <AnimatePresence>
         {selectedPDF && (
-          <div ref={pdfViewerRef}>
-            <PDFViewer
-              url={selectedPDF}
-              onClose={() => {
-                if (selectedPDF instanceof Blob) {
-                  URL.revokeObjectURL(URL.createObjectURL(selectedPDF));
-                }
-                setSelectedPDF(null);
-              }}
-            />
-          </div>
+          <PDFViewer
+            url={selectedPDF}
+            onClose={() => {
+              URL.revokeObjectURL(selectedPDF);
+              setSelectedPDF(null);
+            }}
+          />
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-2 gap-2 mt-4">
-        {files.map((file, index) => {
-          const fileName = getFileName(file);
-          const fileSize = getFileSize(file);
-          const isPDF = isPDFFile(file);
-          const isBackendFile = "isBackendFile" in file;
-
-          return (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              key={`${fileName}-${index}`}
-              className="relative group bg-white p-3 rounded-xl shadow-sm hover:shadow-md 
-                       transition-all duration-200 flex items-center gap-3"
-            >
-              <div className="p-2 bg-indigo-50 rounded-lg">
-                <File className="w-5 h-5 text-indigo-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-700 truncate">
-                  {fileName}
-                </p>
-                {fileSize && (
-                  <p className="text-xs text-gray-400">{fileSize} MB</p>
-                )}
-              </div>
-              <div className="flex gap-1">
-                {isPDF && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => handlePreview(file)}
-                  >
-                    👁️
-                  </Button>
-                )}
-                {!readOnly && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity 
-                             hover:bg-red-50 hover:text-red-500"
-                    onClick={() => onRemove(index)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </>
+      {renderBackendFiles()}
+      {renderFrontendFiles()}
+    </div>
   );
 };

@@ -1,4 +1,12 @@
+import { BackendFile } from "@/types/file";
+
 export type FormFieldValue = string | File[];
+
+export interface FileFieldValue {
+  files: File[];
+  backendFiles: BackendFile[];
+  eliminated: number[];
+}
 
 export interface StudentFormData {
   nombreEstudiante: string;
@@ -33,9 +41,9 @@ export interface StudentFormData {
   condicionDiscapacidad: string;
   tipoDiscapacidad: string;
   talentoYCapacidadesExepcionales: string;
-  piar: File[];
-  compromisoPadres: File[];
-  compromisoEstudiantes: File[];
+  piar: FileFieldValue;
+  compromisoPadres: FileFieldValue;
+  compromisoEstudiantes: FileFieldValue;
 }
 
 export interface FormSection {
