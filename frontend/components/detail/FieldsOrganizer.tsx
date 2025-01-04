@@ -5,7 +5,6 @@ import { FilePreview } from "@/components/FilePreview";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordFieldsOrganizer } from "./record/RecordFieldsOrganizer";
-import { BackendFile } from "@/types/file";
 
 interface FieldsOrganizerProps {
   data: any;

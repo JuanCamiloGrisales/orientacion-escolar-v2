@@ -4,39 +4,16 @@ import { FormFieldComponent } from "@/components/forms/fields/FormField";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { StudentService } from "@/services/student/StudentService";
 import { useFormSectionsStore } from "@/services/form/stores/studentFormSectionsStore";
+import { StudentService } from "@/services/student/StudentService";
 import { Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { BackendFile, FileDisplay } from "@/types/file";
-
-const mapBackendFilesToDisplayFiles = (
-  fieldName: string,
-  files: BackendFile[],
-): FileDisplay[] => {
-  return files.map((file) => ({
-    name: `${fieldName}_${file.id}`,
-    url: file.archivo,
-    isBackendFile: true,
-    id: file.id,
-    type: file.archivo.toLowerCase().endsWith(".pdf")
-      ? "application/pdf"
-      : "application/octet-stream",
-    size: 0,
-  }));
-};
 
 interface EditableStudentFieldsProps {
   studentData: any;
   studentId: string;
   onCancel: () => void;
   onSave: () => void;
-}
-
-interface FileFieldValue {
-  files: File[];
-  backendFiles: BackendFile[];
-  eliminated: number[];
 }
 
 export const EditableStudentFields = ({

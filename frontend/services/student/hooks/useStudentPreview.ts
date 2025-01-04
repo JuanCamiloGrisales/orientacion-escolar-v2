@@ -18,7 +18,7 @@ export const useStudentPreview = (): UseStudentPreviewReturn => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await StudentService.getStudentPreview();
+      const data = await StudentService.getStudentsPreview();
       setStudents(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("An error occurred"));

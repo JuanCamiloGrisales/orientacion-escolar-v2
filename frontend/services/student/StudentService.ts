@@ -92,13 +92,17 @@ export class StudentService {
     }
   }
 
-  public static async getStudentPreview(): Promise<StudentPreview[]> {
+  public static async getStudentsPreview(): Promise<StudentPreview[]> {
     const response = await axios.get(createApiUrl(API_ROUTES.STUDENTS.PREVIEW));
     return response.data;
   }
 
-  public static async getAllStudents(): Promise<any> {
-    const response = await axios.get(createApiUrl(API_ROUTES.STUDENTS.LIST));
+  public static async getStudentPreview(
+    studentId: string,
+  ): Promise<StudentPreview> {
+    const response = await axios.get(
+      createApiUrl(API_ROUTES.STUDENTS.PREVIEW_BY_ID, { id: studentId }),
+    );
     return response.data;
   }
 

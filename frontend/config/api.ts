@@ -3,6 +3,7 @@ export const API_ROUTES = {
   STUDENTS: {
     BASE: "/estudiantes/",
     PREVIEW: "/estudiante-preview",
+    PREVIEW_BY_ID: "/estudiante-preview/:id",
     LIST: "/lista-estudiantes",
     DETAIL: "/estudiantes/:id/",
   },

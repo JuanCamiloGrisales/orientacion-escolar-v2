@@ -31,7 +31,7 @@ export default function RegistroAtencionPage() {
       try {
         const student = await StudentService.getStudentPreview(studentId);
         setStudentData({
-          id: student.id,
+          id: student.id.toString(),
           nombreEstudiante: student.nombreEstudiante,
         });
       } catch (error) {

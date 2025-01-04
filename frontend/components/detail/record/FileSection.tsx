@@ -11,18 +11,6 @@ export const FileSection = ({
   acuerdosPrevios,
   remision,
 }: FileSectionProps) => {
-  const formatFiles = (files: ArchivoRegistro[], fieldName: string) =>
-    files.map((file) => ({
-      name: `${fieldName}_${file.id}`,
-      url: file.archivo,
-      isBackendFile: true,
-      id: file.id,
-      type: file.archivo.toLowerCase().endsWith(".pdf")
-        ? "application/pdf"
-        : "application/octet-stream",
-      size: 0,
-    }));
-
   return (
     <div className="bg-white rounded-3xl p-6 shadow-lg">
       <div className="flex items-center gap-2 mb-6">
@@ -37,20 +25,12 @@ export const FileSection = ({
       <div className="space-y-6">
         <div className="space-y-2">
           <p className="font-medium text-sm text-gray-500">Acuerdos Previos</p>
-          <FilePreview
-            files={formatFiles(acuerdosPrevios, "acuerdosPrevios")}
-            onRemove={() => {}}
-            readOnly
-          />
+          <FilePreview mode="read" backendFiles={acuerdosPrevios} />
         </div>
 
         <div className="space-y-2">
           <p className="font-medium text-sm text-gray-500">Remisión</p>
-          <FilePreview
-            files={formatFiles(remision, "remision")}
-            onRemove={() => {}}
-            readOnly
-          />
+          <FilePreview mode="read" backendFiles={remision} />
         </div>
       </div>
     </div>

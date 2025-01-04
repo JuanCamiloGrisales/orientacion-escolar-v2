@@ -3,6 +3,14 @@ import { CalendarDays, ClipboardList, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { ConfirmationModal } from "./ConfirmationModal";
 
+const toTitleCase = (str: string) => {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 interface HeaderProps {
   onSubmit: () => void;
   isSubmitting: boolean;
@@ -36,7 +44,7 @@ export function Header({ onSubmit, isSubmitting, studentName }: HeaderProps) {
           </div>
           {studentName && (
             <div className="flex items-center gap-2 text-indigo-600 font-medium">
-              <p className="text-sm">Estudiante: {studentName}</p>
+              <p className="text-sm">Estudiante: {toTitleCase(studentName)}</p>
             </div>
           )}
           <div className="flex items-center gap-2 text-gray-500">

@@ -30,11 +30,33 @@ export const FormSection = ({
   };
 
   const handleFieldChange = (fieldName: string, value: any) => {
-    // Construimos el nombre completo del campo incluyendo la sección
     const fullFieldName = fieldName.includes(".")
       ? fieldName
       : `${section.id}.${fieldName}`;
+
+    // Initialize file structure if it's a file field and doesn't exist
+    if (value instanceof FileList) {
+      const currentValue = getFieldValue(fieldName) || { files: [] };
+      onChange(fullFieldName, {
+        ...currentValue,
+        files: [...currentValue.files, ...Array.from(value)],
+      });
+      return;
+    }
+
     onChange(fullFieldName, value);
+  };
+
+  const handleRemoveFrontendFile = (fieldName: string, index: number) => {
+    const fullFieldName = fieldName.includes(".")
+      ? fieldName
+      : `${section.id}.${fieldName}`;
+
+    const currentValue = getFieldValue(fieldName) || { files: [] };
+    onChange(fullFieldName, {
+      ...currentValue,
+      files: currentValue.files.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -55,6 +77,11 @@ export const FormSection = ({
               field={field}
               value={getFieldValue(field.name)}
               onChange={(value) => handleFieldChange(field.name, value)}
+              onRemoveFrontendFile={
+                field.type === "file"
+                  ? (index) => handleRemoveFrontendFile(field.name, index)
+                  : undefined
+              }
             />
           ))}
         </div>

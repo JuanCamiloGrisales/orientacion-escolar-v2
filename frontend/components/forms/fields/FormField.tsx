@@ -189,6 +189,7 @@ export function FormFieldComponent({
       case "file":
         return (
           <FileField
+            mode="edit"
             value={value}
             onChange={onChange}
             label={field.label}
