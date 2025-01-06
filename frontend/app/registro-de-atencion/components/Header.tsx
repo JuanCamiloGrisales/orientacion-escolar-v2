@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ClipboardList, RotateCcw } from "lucide-react";
+import { CalendarDays, ClipboardList, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ConfirmationModal } from "./ConfirmationModal";
 
 const toTitleCase = (str: string) => {
@@ -18,7 +19,8 @@ interface HeaderProps {
 }
 
 export function Header({ onSubmit, isSubmitting, studentName }: HeaderProps) {
-  const [showResetModal, setShowResetModal] = useState(false);
+  const [showBackModal, setShowBackModal] = useState(false);
+  const router = useRouter();
   const currentDate = new Date().toLocaleDateString("es-ES", {
     weekday: "long",
     year: "numeric",
@@ -26,10 +28,9 @@ export function Header({ onSubmit, isSubmitting, studentName }: HeaderProps) {
     day: "numeric",
   });
 
-  const handleReset = () => {
-    // Add your reset logic here
-    setShowResetModal(false);
-    window.location.reload();
+  const handleBack = () => {
+    setShowBackModal(false);
+    router.back();
   };
 
   return (
@@ -55,12 +56,12 @@ export function Header({ onSubmit, isSubmitting, studentName }: HeaderProps) {
 
         <div className="flex gap-3 w-full md:w-auto">
           <Button
-            onClick={() => setShowResetModal(true)}
+            onClick={() => setShowBackModal(true)}
             variant="outline"
-            className="flex items-center gap-2 flex-1 md:flex-none"
+            className="flex items-center gap-2 flex-1 md:flex-none hover:bg-gray-100"
           >
-            <RotateCcw className="h-4 w-4" />
-            Reiniciar
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </Button>
 
           <Button
@@ -83,9 +84,9 @@ export function Header({ onSubmit, isSubmitting, studentName }: HeaderProps) {
       </div>
 
       <ConfirmationModal
-        isOpen={showResetModal}
-        onClose={() => setShowResetModal(false)}
-        onConfirm={handleReset}
+        isOpen={showBackModal}
+        onClose={() => setShowBackModal(false)}
+        onConfirm={handleBack}
       />
     </div>
   );
